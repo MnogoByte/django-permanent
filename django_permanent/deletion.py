@@ -40,7 +40,7 @@ class PermanentCollector(BaseCollector):
         for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
             query = sql.UpdateQuery(model)
             for (field, value), instances in six.iteritems(instances_for_fieldvalues):
-                if isinstance(model, PermanentModel):
+                if issubclass(model, PermanentModel):
                     query.update_batch([obj.pk for obj in instances],
                                        {field.name: value}, self.using)
 
@@ -48,7 +48,7 @@ class PermanentCollector(BaseCollector):
             instances.reverse()
 
         for model, batches in six.iteritems(self.batches):
-            if isinstance(model, PermanentModel):  # Update PermanentModel instance
+            if issubclass(model, PermanentModel):  # Update PermanentModel instance
                 query = sql.UpdateQuery(model)
                 for field, instances in six.iteritems(batches):
                     query.update_batch([obj.pk for obj in instances], {PERMANENT_FIELD: time}, self.using)
@@ -59,7 +59,7 @@ class PermanentCollector(BaseCollector):
 
         for model, instances in six.iteritems(self.data):
             pk_list = [obj.pk for obj in instances]
-            if isinstance(model, PermanentModel):  # Update PermanentModel instance
+            if issubclass(model, PermanentModel):  # Update PermanentModel instance
                 query = sql.UpdateQuery(model)
                 query.update_batch(pk_list, {PERMANENT_FIELD: time}, self.using)
             else:
