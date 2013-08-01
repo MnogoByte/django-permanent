@@ -1,0 +1,20 @@
+# -*- coding: utf-8 -*-
+from distutils.core import setup
+
+
+setup(name='django-permanent',
+      version='0.0.1',
+      description='Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.',
+      author='Alexander Klimenko',
+      author_email='alex@erix.ru',
+      long_description = open('README.rst').read(),
+      url='https://github.com/meteozond/django-permanent',
+      packages=['django_permanent'],
+      classifiers=[
+            "Framework :: Django",
+            "Intended Audience :: Developers",
+            "Intended Audience :: System Administrators",
+            "Operating System :: OS Independent",
+            "Topic :: Software Development"
+      ],
+      license="BSD",)
