@@ -14,16 +14,6 @@ class PermanentQuerySet(QuerySet):
     def deleted_only(self):
         return self.exclude(**{PERMANENT_FIELD: None})
 
-    def filter(self, **kwargs):
-        # if ('pk' in kwargs and
-        #     self.query.where.children and
-        #     len(self.query.where.children[0].children) == 1 and
-        #     self.query.where.children[0].children[0][0].col == PERMANENT_FIELD):
-        #         clone = self._clone()
-        #         del clone.query.where.children[0]
-        #         return clone.filter(**kwargs)
-        return super(PermanentQuerySet, self).filter(**kwargs)
-
     def delete(self, force=False):
         """
         Deletes the records in the current QuerySet.
@@ -57,7 +47,16 @@ class PermanentQuerySet(QuerySet):
         return self.update(**{PERMANENT_FIELD: None})
 
 
-class PermanentQuerySetByPK()
+class PermanentQuerySetByPK(PermanentQuerySet):
+    def filter(self, **kwargs):
+        if ('pk' in kwargs and
+            self.query.where.children and
+            len(self.query.where.children[0].children) == 1 and
+            self.query.where.children[0].children[0][0].col == PERMANENT_FIELD):
+                clone = self._clone()
+                del clone.query.where.children[0]
+                return clone.filter(**kwargs)
+        return super(PermanentQuerySet, self).filter(**kwargs)
 
 
 def permanent_queryset(qs):
