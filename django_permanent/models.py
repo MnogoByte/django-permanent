@@ -8,6 +8,7 @@ from .managers import PermanentManager, DeletedManager
 class PermanentModel(models.Model):
     objects = PermanentManager()
     deleted_objects = DeletedManager()
+    all_objects = models.Manager()
 
     class Meta:
         abstract = True
