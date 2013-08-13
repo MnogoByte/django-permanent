@@ -59,7 +59,7 @@ You can still force django query set physical deletion::
     >>> MyModel.objects.all().delete(force=True)
 
 model_utils.PassThroughManager compatibility 
-================
+=============================================
 
 1. Inherit your query set from PermanentQuerySet::
 
