@@ -1,80 +1,52 @@
-Django Permanent
-================
+django-ordered-listview
+=======================
 
-Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.
+About
+-----
 
-Models
-================
+This library is aimed to simplify creation of user sorted lists.
+Inspired by https://gist.github.com/piquadrat/3833430
 
-To create non-deletable model just inherit it form the PermanentModel.::
+Installation
+------------
 
-    class MyModel(PermanentModel):
-        pass
+1. Install with pip or setup.py
 
-It automatically changes delete behaviour, to hide model instead of deleting. restore() method.::
+2. Add ordered_listview into `INSTALLED_APPS`. ::
 
-    >>> a = MyModel.objects.create(pk=1)
-    >>> b = MyModel.objects.create(pk=2)
-    >>> MyModel.objects.count()
-    2
-    >>> a.delete()
-    >>> MyModel.objects.count()
-    1
+    INSTALLED_APPS += ['ordered__listview']
 
-To recover model just call its restore method.::
+3. Add template tags lib into builtins. ::
 
-    >>> a.restore()
-    >>> MyModel.objects.count()
-    2
+    add_to_builtins('ordered_listview.templatetags.ordered_listview')  // Or load with {% load ordered_listview %}
 
-User Force kwarg to enforce physical deletion.::
+4. Inherit your view from `OrderedListView`. And setup your ordering fields. ::
 
-    >>> a.delete(force=True) # Will act as the default django delete
-    >>> MyModel._base_manager.count()
-    0
+    from ordered_listview import OrderedListView
 
-Managers
-================
+    class UserListView(OrderedListView):
+        allowed_order_by = [
+            ('username', _('Login')),
+            ('userfile__file__size', _('Size')),
+            ('date_joined', _('Sing up date'))
+        ]
+        default_order_by = 'created'
 
-It changes default model manager to ignore deleted objects. And adds deleted_objects manager to find the last ones.::
+5. Add a tag into you your template. ::
 
-    >>> MyModel.objects.count()
-    2
-    >>> a.delete()
-    >>> MyModel.objects.count()
-    1
-    >>> MyModel.deleted_objects.count()
-    1
-    >>> MyModel._defatult_manager.count()
-    2
+    {% include "ordered_listview/fields.html" %}
 
-QuerySet
-================
-Query set delete method will act as the default django delete, with the one exception - all related  PermanentModel children will be marked as deleted, the usual models will be deleted physically::
-        
-    >>> MyModel.objects.all().delete()
 
-You can still force django query set physical deletion::
+Customization
+-------------
 
-    >>> MyModel.objects.all().delete(force=True)
+1. To change get attribute name, just set `OrderedListView.order_by` attribute ::
 
-model_utils.PassThroughManager compatibility 
-=============================================
+    class UserListView(OrderedListView):
+        order_by = "order_by"
 
-1. Inherit your query set from PermanentQuerySet::
+2. If you need to provide your own template create inside your `templates`
+`ordered_listview` directory with `fields.html` and `field.html` in.
 
-    class MyQuerySet(PermanentQuerySet)
-        pass
-
-2. Wrap it in the permanent_queryset or deleted_queryset in you model manager declaration::
-
-    class MyModel(PermanentModel)
-        objects = PassThroughManager.for_queryset_class(permanent_queryset(ServerFileQuerySet))()
-        deleted_objects = PassThroughManager.for_queryset_class(deleted_queryset(ServerFileQuerySet))()
-
-Field name
-================
-
-By default field is named removed, but you can override it by PERMANENT_FIELD variable in you settings.py.::
-
-    PERMANENT_FIELD = 'deleted'
+    fields.html - list of sortable fields
+    field.html - order field and state template
