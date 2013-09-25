@@ -1,4 +1,4 @@
-from django.db.models.query import QuerySet
+from django.db.models.query import QuerySet, ValuesQuerySet
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query_utils import Q
 
@@ -48,6 +48,10 @@ class PermanentQuerySet(QuerySet):
 
     def restore(self):
         return self.update(**{PERMANENT_FIELD: None})
+
+    def values(self, *fields):
+        klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
+        return self._clone(klass=klass, setup=True, _fields=fields)
 
 
 class NonDeletedQuerySet(PermanentQuerySet):
