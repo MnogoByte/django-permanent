@@ -61,7 +61,7 @@ You can still force django query set physical deletion::
     >>> MyModel.objects.all().delete(force=True)
 
 model_utils.PassThroughManager compatibility 
-================
+=============================================
 
 1. Inherit your query set from PermanentQuerySet::
 
@@ -88,3 +88,4 @@ Field name
 By default field is named removed, but you can override it by PERMANENT_FIELD variable in you settings.py.::
 
     PERMANENT_FIELD = 'deleted'
+    
