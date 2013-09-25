@@ -10,17 +10,14 @@ from .deletion import PermanentCollector
 
 class PermanentQuerySet(QuerySet):
     def get_restore_or_create(self, **kwargs):
-        try:
-            obj = self.get(**kwargs)
-        except ObjectDoesNotExist:
-            return self.create(**kwargs)
+        obj, created = self.get_or_create(**kwargs)
 
         if isinstance(obj, dict):
             geter, seter = obj.get, obj.__setitem__
         else:
             geter, seter = partial(getattr, obj), partial(setattr, obj)
 
-        if geter(PERMANENT_FIELD, True):
+        if not created and geter(PERMANENT_FIELD, True):
             seter(PERMANENT_FIELD, None)
             self.model.objects.filter(id=geter(obj, 'id')).update(removed=None)
         return obj
