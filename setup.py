@@ -10,7 +10,7 @@ setup(name='django-permanent',
       long_description = open('README.rst').read(),
       url='https://github.com/meteozond/django-permanent',
       packages=['django_permanent'],
-      install_requires=['model_utils==1.5.0'],
+      install_requires=['django_model_utils==1.5.0'],
       classifiers=[
             "Framework :: Django",
             "Intended Audience :: Developers",
