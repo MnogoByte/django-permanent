@@ -45,6 +45,8 @@ It changes default model manager to ignore deleted objects. And adds deleted_obj
     1
     >>> MyModel.deleted_objects.count()
     1
+    >>> MyModel.all_objects.count()
+    2
     >>> MyModel._defatult_manager.count()
     2
 
@@ -69,8 +71,16 @@ model_utils.PassThroughManager compatibility
 2. Wrap it in the permanent_queryset or deleted_queryset in you model manager declaration::
 
     class MyModel(PermanentModel)
-        objects = PassThroughManager.for_queryset_class(permanent_queryset(ServerFileQuerySet))()
-        deleted_objects = PassThroughManager.for_queryset_class(deleted_queryset(ServerFileQuerySet))()
+        objects = get_objects(ServerFileQuerySet)()
+        deleted_objects = get_deleted_objects(ServerFileQuerySet)()
+        all_objects = get_all_objects(ServerFileQuerySet)()
+
+Method get_restore_or_create
+================
+
+1. Check existence of the object.
+2. Restore it was deleted.
+3. Create new one, if it wasn't ever created.
 
 Field name
 ================

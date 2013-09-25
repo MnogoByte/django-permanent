@@ -1,14 +1,16 @@
+from model_utils.managers import PassThroughManager
+
 from django.db import models, router
 
 from . import PERMANENT_FIELD
 from .deletion import PermanentCollector
-from .managers import PermanentManager, DeletedManager
+from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 
 
 class PermanentModel(models.Model):
-    objects = PermanentManager()
-    deleted_objects = DeletedManager()
-    all_objects = models.Manager()
+    objects = PassThroughManager.for_queryset_class(NonDeletedQuerySet)()
+    deleted_objects = PassThroughManager.for_queryset_class(DeletedQuerySet)()
+    all_objects = PassThroughManager.for_queryset_class(PermanentQuerySet)()
 
     class Meta:
         abstract = True

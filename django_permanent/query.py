@@ -1,18 +1,21 @@
 from django.db.models.query import QuerySet
+from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.query_utils import Q
 
 from . import PERMANENT_FIELD
 from .deletion import PermanentCollector
 
 
 class PermanentQuerySet(QuerySet):
-    def all_with_deleted(self):
-        return self.all()
-
-    def not_deleted_only(self):
-        return self.filter(**{PERMANENT_FIELD: None})
-
-    def deleted_only(self):
-        return self.exclude(**{PERMANENT_FIELD: None})
+    def get_restore_or_create(self, **kwargs):
+        try:
+            obj = self.get(**kwargs)
+        except ObjectDoesNotExist:
+            return self.create(**kwargs)
+        if getattr(obj, PERMANENT_FIELD):
+            setattr(obj, PERMANENT_FIELD, None)
+            obj.save(update_fields=[PERMANENT_FIELD])
+        return obj
 
     def delete(self, force=False):
         """
@@ -47,25 +50,13 @@ class PermanentQuerySet(QuerySet):
         return self.update(**{PERMANENT_FIELD: None})
 
 
-class PermanentQuerySetByPK(PermanentQuerySet):
-    def filter(self, **kwargs):
-        if ('pk' in kwargs and
-            self.query.where.children and
-            len(self.query.where.children[0].children) == 1 and
-            self.query.where.children[0].children[0][0].col == PERMANENT_FIELD):
-                clone = self._clone()
-                del clone.query.where.children[0]
-                return clone.filter(**kwargs)
-        return super(PermanentQuerySet, self).filter(**kwargs)
+class NonDeletedQuerySet(PermanentQuerySet):
+    def __init__(self, *args, **kwargs):
+        super(NonDeletedQuerySet, self).__init__(*args, **kwargs)
+        self.query.add_q(Q(**{PERMANENT_FIELD: None}))
 
 
-def permanent_queryset(qs):
-    def func(*args, **kwargs):
-        return qs(*args, **kwargs).not_deleted_only()
-    return func
-
-
-def deleted_queryset(qs):
-    def func(*args, **kwargs):
-        return qs(*args, **kwargs).deleted_only()
-    return func
+class DeletedQuerySet(PermanentQuerySet):
+    def __init__(self, *args, **kwargs):
+        super(DeletedQuerySet, self).__init__(*args, **kwargs)
+        self.query.add_q(~Q(**{PERMANENT_FIELD: None}))

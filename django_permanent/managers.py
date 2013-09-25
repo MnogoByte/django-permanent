@@ -1,14 +1,23 @@
+from model_utils.managers import PassThroughManager
+
 from django.db.models import Manager as Manager
 
-from . import PERMANENT_FIELD
-from .query import PermanentQuerySet
+from .query import PermanentQuerySet, NonDeletedQuerySet, DeletedQuerySet
 
 
-class PermanentManager(Manager):
-    def get_query_set(self):
-        return PermanentQuerySet(self.model, using=self._db).filter(**{PERMANENT_FIELD: None})
+def get_objects(cls):
+    class QuerySet(cls, NonDeletedQuerySet):
+        pass
+    return PassThroughManager.for_queryset_class(QuerySet)()
 
 
-class DeletedManager(Manager):
-    def get_query_set(self):
-        return PermanentQuerySet(self.model, using=self._db).exclude(**{PERMANENT_FIELD: None})
+def get_deleted_objects(cls):
+    class QuerySet(cls, DeletedQuerySet):
+        pass
+    return PassThroughManager.for_queryset_class(QuerySet)()
+
+
+def get_any_objects(cls):
+    class QuerySet(cls, PermanentQuerySet):
+        pass
+    return PassThroughManager.for_queryset_class(QuerySet)()
