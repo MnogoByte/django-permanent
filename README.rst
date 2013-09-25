@@ -47,7 +47,7 @@ It changes default model manager to ignore deleted objects. And adds deleted_obj
     1
     >>> MyModel.all_objects.count()
     2
-    >>> MyModel._defatult_manager.count()
+    >>> MyModel._base_manager.count()
     2
 
 QuerySet
