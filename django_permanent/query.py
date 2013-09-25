@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.db.models.query import QuerySet, ValuesQuerySet
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query_utils import Q
@@ -12,9 +14,15 @@ class PermanentQuerySet(QuerySet):
             obj = self.get(**kwargs)
         except ObjectDoesNotExist:
             return self.create(**kwargs)
-        if getattr(obj, PERMANENT_FIELD):
-            setattr(obj, PERMANENT_FIELD, None)
-            obj.save(update_fields=[PERMANENT_FIELD])
+
+        if isinstance(obj, dict):
+            geter, seter = obj.get, obj.__setitem__
+        else:
+            geter, seter = partial(getattr, obj), partial(setattr, obj)
+
+        if geter(PERMANENT_FIELD, True):
+            seter(PERMANENT_FIELD, None)
+            self.model.objects.filter(id=geter(obj, 'id')).update(removed=None)
         return obj
 
     def delete(self, force=False):
