@@ -33,4 +33,4 @@ class PermanentModel(models.Model):
         self.save()
 
 
-PermanentModel.add_to_class(PERMANENT_FIELD, models.DateTimeField(blank=True, null=True))
+PermanentModel.add_to_class(PERMANENT_FIELD, models.DateTimeField(blank=True, null=True, editable=False))
