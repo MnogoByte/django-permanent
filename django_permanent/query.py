@@ -62,10 +62,12 @@ class PermanentQuerySet(QuerySet):
 class NonDeletedQuerySet(PermanentQuerySet):
     def __init__(self, *args, **kwargs):
         super(NonDeletedQuerySet, self).__init__(*args, **kwargs)
-        self.query.add_q(Q(**{PERMANENT_FIELD: None}))
+        if not self.query.where:
+            self.query.add_q(Q(**{PERMANENT_FIELD: None}))
 
 
 class DeletedQuerySet(PermanentQuerySet):
     def __init__(self, *args, **kwargs):
         super(DeletedQuerySet, self).__init__(*args, **kwargs)
-        self.query.add_q(~Q(**{PERMANENT_FIELD: None}))
+        if not self.query.where:
+            self.query.add_q(~Q(**{PERMANENT_FIELD: None}))
