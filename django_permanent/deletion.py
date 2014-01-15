@@ -33,7 +33,7 @@ class PermanentCollector(BaseCollector):
 
         for qs in self.fast_deletes:
             if issubclass(qs.model, PermanentModel):  # Update PermanentModel instance
-                sql.UpdateQuery(qs.model).update_batch(qs, {PERMANENT_FIELD: time}, self.using)
+                qs.using(self.using).update(**{PERMANENT_FIELD: time})
             else:
                 qs._raw_delete(using=self.using)
 
