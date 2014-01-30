@@ -1,3 +1,6 @@
+IMPORTANT! This package is temporarly not compatible with Django 1.6.*! 
+Hope to fix it in the nearest furure. Sorry. Stay tuned.
+
 Django Permanent
 ================
 
