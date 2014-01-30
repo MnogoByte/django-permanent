@@ -1,7 +1,6 @@
 from functools import partial
 
 from django.db.models.query import QuerySet, ValuesQuerySet
-from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.query_utils import Q
 
 from . import PERMANENT_FIELD
@@ -50,6 +49,7 @@ class PermanentQuerySet(QuerySet):
 
         # Clear the result cache, in case this QuerySet gets reused.
         self._result_cache = None
+    delete.alters_data = True
 
     def restore(self):
         return self.update(**{PERMANENT_FIELD: None})
