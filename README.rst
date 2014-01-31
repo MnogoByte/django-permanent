@@ -60,20 +60,20 @@ You can still force django query set physical deletion::
 
     >>> MyModel.objects.all().delete(force=True)
 
-Using custom queryset
+Using custom querysets (requires django-model-utils)
 =============================================
 
 1. Inherit your query set from PermanentQuerySet::
 
-    class MyQuerySet(PermanentQuerySet)
+    class ServerFileQuerySet(PermanentQuerySet)
         pass
 
 2. Wrap it in the permanent_queryset or deleted_queryset in you model manager declaration::
 
     class MyModel(PermanentModel)
-        objects = get_objects(ServerFileQuerySet)()
-        deleted_objects = get_deleted_objects(ServerFileQuerySet)()
-        all_objects = get_all_objects(ServerFileQuerySet)()
+        objects = MultiPassThroughManager(ServerFileQuerySet, NonDeletedQuerySet)
+        deleted_objects = MultiPassThroughManager(ServerFileQuerySet, DeletedQuerySet)
+        all_objects = MultiPassThroughManager(ServerFileQuerySet, PermanentQuerySet)
 
 Method get_restore_or_create
 =============================
