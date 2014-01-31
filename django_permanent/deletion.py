@@ -39,8 +39,9 @@ class PermanentCollector(BaseCollector):
             # fast deletes
             for qs in self.fast_deletes:
                 if issubclass(qs.model, PermanentModel):  # Update PermanentModel instance
+                    pk_list = [obj.pk for obj in qs]
                     qs = sql.UpdateQuery(qs.model)
-                    qs.update_batch([obj.pk for obj in qs], {PERMANENT_FIELD: time}, self.using)
+                    qs.update_batch(pk_list, {PERMANENT_FIELD: time}, self.using)
                 else:
                     qs._raw_delete(using=self.using)
 
@@ -78,4 +79,6 @@ class PermanentCollector(BaseCollector):
                     setattr(obj, field.attname, value)
         for model, instances in six.iteritems(self.data):
             for instance in instances:
+                if issubclass(model, PermanentModel):
+                    continue
                 setattr(instance, model._meta.pk.attname, None)
