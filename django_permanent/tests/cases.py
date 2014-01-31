@@ -1,5 +1,9 @@
 from django.test import TestCase
-from .models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended
+from django.utils.unittest.case import skipUnless
+
+from django_permanent.tests.cond import model_utils_installed
+
+from .models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent
 
 
 class TestDelete(TestCase):
@@ -32,3 +36,10 @@ class TestDelete(TestCase):
         self.permanent.delete()
         self.assertEqual(list(model.objects.all()), [])
         self.assertEqual(list(model.deleted_objects.all()), [depended])
+
+
+class TestPassThroughManager(TestCase):
+    @skipUnless(model_utils_installed, "Missing django-model-utils")
+    def test_pass_through_manager(self):
+        self.assertTrue(hasattr(CustomQsPermanent.objects, 'test'))
+        self.assertTrue(hasattr(CustomQsPermanent.objects, 'restore'))
