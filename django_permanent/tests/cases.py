@@ -43,3 +43,4 @@ class TestPassThroughManager(TestCase):
     def test_pass_through_manager(self):
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'test'))
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'restore'))
+        self.assertTrue(CustomQsPermanent.objects.get_restore_or_create(id=10))
