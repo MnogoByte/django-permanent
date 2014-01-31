@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from distutils.core import setup
+from setuptools import setup
 
 
 setup(name='django-permanent',
@@ -10,7 +10,7 @@ setup(name='django-permanent',
       long_description = open('README.rst').read(),
       url='https://github.com/meteozond/django-permanent',
       packages=['django_permanent'],
-      install_requires=['django_model_utils==1.5.0'],
+      install_requires=["Django>=1.6.0"],
       classifiers=[
             "Framework :: Django",
             "Intended Audience :: Developers",
@@ -18,4 +18,6 @@ setup(name='django-permanent',
             "Operating System :: OS Independent",
             "Topic :: Software Development"
       ],
-      license="BSD",)
+      tests_require=["Django>=1.6.0", "django-model-utils"],
+      test_suite='runtests.runtests',
+      license="BSD")
