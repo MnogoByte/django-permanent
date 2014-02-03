@@ -11,7 +11,7 @@ setup(name='django-permanent',
       url='https://github.com/meteozond/django-permanent',
       packages=['django_permanent'],
       install_requires=["Django>=1.6.0"],
-      keywords = ['django', 'delete', 'undelete', 'safedelete', 'remove', 'restore', 'softdelete', 'logicaldelete'],
+      keywords = ['django', 'delete', 'undelete', 'safedelete', 'remove', 'restore', 'softdelete', 'logicaldelete', 'trash'],
       classifiers=[
             "Framework :: Django",
             "Intended Audience :: Developers",
