@@ -20,7 +20,7 @@ setup(name='django-permanent',
             "Topic :: Software Development",
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 2.7",
-            "Development Status :: 4 - Beta"
+            "Development Status :: 4 - Beta",
             "License :: OSI Approved :: BSD License",
       ],
       tests_require=["Django>=1.6.0", "django-model-utils"],
