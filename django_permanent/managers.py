@@ -1,18 +1,15 @@
-
 from django.db.models import Manager as Manager
 
-from .query import PermanentQuerySet, NonDeletedQuerySet, DeletedQuerySet
 
+def QuerySetManager(qs):
 
-class QuerySetManager(Manager):
-    qs_class = None
+    class QuerySetManager(Manager):
+        qs_class = qs
 
-    def __init__(self, qs_class):
-        self.qs_class = qs_class
-        super(QuerySetManager, self).__init__()
+        def get_queryset(self):
+            return self.qs_class(self.model, using=self._db)
 
-    def get_queryset(self):
-        return self.qs_class(self.model, using=self._db)
+    return QuerySetManager()
 
 
 def MultiPassThroughManager(*classes):

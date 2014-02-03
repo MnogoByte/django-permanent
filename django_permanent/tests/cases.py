@@ -38,6 +38,14 @@ class TestDelete(TestCase):
         self.assertEqual(list(model.deleted_objects.all()), [depended])
 
 
+class TestIntegration(TestCase):
+    def test_prefetch_bug(self):
+        permanent1 = MyPermanentModel.objects.create()
+        NonRemovableDepended.objects.create(dependance=permanent1)
+        MyPermanentModel.objects.prefetch_related('nonremovabledepended_set').all()
+        NonRemovableDepended.all_objects.prefetch_related('dependance').all()
+
+
 class TestPassThroughManager(TestCase):
     @skipUnless(model_utils_installed, "Missing django-model-utils")
     def test_pass_through_manager(self):

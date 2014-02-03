@@ -23,7 +23,7 @@ class RemovableDepended(BaseTestModel):
     dependance = models.ForeignKey(MyPermanentModel)
 
 
-class NonRemovableDepended(BaseTestModel):
+class NonRemovableDepended(BaseTestModel, PermanentModel):
     dependance = models.ForeignKey(MyPermanentModel, on_delete=models.DO_NOTHING)
 
 
