@@ -61,7 +61,7 @@ You can still force django query set physical deletion::
     >>> MyModel.objects.all().delete(force=True)
 
 Using custom querysets (requires django-model-utils)
-=============================================
+====================================================
 
 1. Inherit your query set from PermanentQuerySet::
 
