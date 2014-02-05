@@ -9,8 +9,8 @@ from .deletion import PermanentCollector
 
 class PermanentQuerySet(QuerySet):
     def get_restore_or_create(self, **kwargs):
-        obj, created = self.get_or_create(**kwargs)
-
+        qs = self.get_unpatched()
+        obj, created = qs.get_or_create(**kwargs)
         if isinstance(obj, dict):
             geter, seter = obj.get, obj.__setitem__
         else:
@@ -18,7 +18,7 @@ class PermanentQuerySet(QuerySet):
 
         if not created and geter(PERMANENT_FIELD, True):
             seter(PERMANENT_FIELD, None)
-            self.model.objects.filter(id=geter(obj, 'id')).update(removed=None)
+            self.model.objects.filter(id=geter('id')).update(removed=None)
         return obj
 
     def delete(self, force=False):
@@ -52,11 +52,20 @@ class PermanentQuerySet(QuerySet):
     delete.alters_data = True
 
     def restore(self):
-        return self.update(**{PERMANENT_FIELD: None})
+        return self.get_unpatched().update(**{PERMANENT_FIELD: None})
 
     def values(self, *fields):
         klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
         return self._clone(klass=klass, setup=True, _fields=fields)
+
+    def get_unpatched(self):
+        qs = self._clone(PermanentQuerySet)
+        try:  # Unpatching query if patched
+            if qs.query.where.children[0][0].col == PERMANENT_FIELD:
+                qs.query.where.children = qs.query.where.children[1:]
+        except (TypeError, IndexError):
+            pass
+        return qs
 
 
 class NonDeletedQuerySet(PermanentQuerySet):
