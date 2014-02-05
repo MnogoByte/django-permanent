@@ -16,6 +16,7 @@ class BaseTestModel(Model):
 
 
 class MyPermanentModel(BaseTestModel, PermanentModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
     pass
 
 
