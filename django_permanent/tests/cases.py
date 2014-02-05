@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.timezone import now
 from django.utils.unittest.case import skipUnless
 
 from django_permanent.tests.cond import model_utils_installed
@@ -52,3 +53,23 @@ class TestPassThroughManager(TestCase):
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'test'))
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'restore'))
         self.assertTrue(CustomQsPermanent.objects.get_restore_or_create(id=10))
+
+
+class TestCustomQSMethods(TestCase):
+    def test__get_restore_or_create__get(self):
+        self.obj = MyPermanentModel.objects.create(name="old")
+        self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
+
+    def test__get_restore_or_create__restore(self):
+        obj = MyPermanentModel.objects.create(name="old", removed=now())
+        obj.delete()
+        self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, obj.id)
+
+    def test__get_restore_or_create__create(self):
+        MyPermanentModel.objects.get_restore_or_create(name="old")
+        self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
+
+    def test_restore(self):
+        MyPermanentModel.objects.create(name="old", removed=now())
+        MyPermanentModel.objects.filter(name="old").restore()
+        self.assertEqual(MyPermanentModel.objects.count(), 1)
