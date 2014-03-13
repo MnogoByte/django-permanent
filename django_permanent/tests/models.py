@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Model
 from django_permanent.models import PermanentModel
 from django_permanent.managers import MultiPassThroughManager
-from django_permanent.query import DeletedQuerySet
+from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
 from .cond import model_utils_installed
 
 
@@ -30,6 +30,19 @@ class NonRemovableDepended(BaseTestModel, PermanentModel):
 
 class PermanentDepended(BaseTestModel, PermanentModel):
     dependance = models.ForeignKey(MyPermanentModel)
+
+
+class MyPermanentQuerySet(PermanentQuerySet):
+    def test(self):
+        pass
+
+
+class MyPermanentModelWithManager(BaseTestModel, PermanentModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
+
+    objects = MultiPassThroughManager(MyPermanentQuerySet, NonDeletedQuerySet)
+    deleted_objects = MultiPassThroughManager(MyPermanentQuerySet, DeletedQuerySet)
+    any_objects = MultiPassThroughManager(MyPermanentQuerySet, PermanentQuerySet)
 
 
 if model_utils_installed:

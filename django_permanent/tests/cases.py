@@ -4,7 +4,7 @@ from django.utils.unittest.case import skipUnless
 
 from django_permanent.tests.cond import model_utils_installed
 
-from .models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent
+from .models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager
 
 
 class TestDelete(TestCase):
@@ -73,3 +73,21 @@ class TestCustomQSMethods(TestCase):
         MyPermanentModel.objects.create(name="old", removed=now())
         MyPermanentModel.objects.filter(name="old").restore()
         self.assertEqual(MyPermanentModel.objects.count(), 1)
+
+
+class TestCustomManager(TestCase):
+    def setUp(self):
+        MyPermanentModelWithManager.objects.create(name="regular")
+        MyPermanentModelWithManager.objects.create(name="removed", removed=now())
+
+    def test_custom_method(self):
+        MyPermanentModelWithManager.objects.test()
+
+    def test_non_removed(self):
+        self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
+
+    def test_removed(self):
+        self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
+
+    def test_all(self):
+        self.assertEqual(MyPermanentModelWithManager.any_objects.count(), 2)
