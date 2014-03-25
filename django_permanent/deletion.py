@@ -10,6 +10,7 @@ from . import PERMANENT_FIELD
 
 
 class PermanentCollector(BaseCollector):
+    fast_deletes = []
 
     @force_managed
     def delete(self):
