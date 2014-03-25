@@ -88,4 +88,8 @@ Field name
 By default field is named removed, but you can override it by PERMANENT_FIELD variable in you settings.py.::
 
     PERMANENT_FIELD = 'deleted'
-    
+
+Requirements
+============
+
+Django 1.6.x required. To cover Django 1.5 needs use 0.1.4 branch.
