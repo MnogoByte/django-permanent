@@ -11,6 +11,7 @@ from . import PERMANENT_FIELD
 
 
 class PermanentCollector(BaseCollector):
+    fast_deletes = []
 
     def delete(self):
         """
