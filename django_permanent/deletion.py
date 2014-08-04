@@ -7,7 +7,7 @@ from django.db.models import signals, sql
 from django.utils import six
 from django.utils.timezone import now
 
-from . import PERMANENT_FIELD
+from django_permanent import settings
 
 
 class PermanentCollector(BaseCollector):
@@ -42,7 +42,7 @@ class PermanentCollector(BaseCollector):
                 if issubclass(qs.model, PermanentModel):  # Update PermanentModel instance
                     pk_list = [obj.pk for obj in qs]
                     qs = sql.UpdateQuery(qs.model)
-                    qs.update_batch(pk_list, {PERMANENT_FIELD: time}, self.using)
+                    qs.update_batch(pk_list, {settings.FIELD: time}, self.using)
                 else:
                     qs._raw_delete(using=self.using)
 
@@ -62,7 +62,7 @@ class PermanentCollector(BaseCollector):
                 pk_list = [obj.pk for obj in instances]
                 if issubclass(model, PermanentModel):
                     query = sql.UpdateQuery(model)
-                    query.update_batch(pk_list, {PERMANENT_FIELD: time}, self.using)
+                    query.update_batch(pk_list, {settings.FIELD: time}, self.using)
                 else:
                     query = sql.DeleteQuery(model)
                     query.delete_batch(pk_list, self.using)

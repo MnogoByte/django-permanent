@@ -3,7 +3,7 @@ from functools import partial
 from django.db.models.query import QuerySet, ValuesQuerySet
 from django.db.models.query_utils import Q
 
-from . import PERMANENT_FIELD
+from django_permanent import settings
 from .deletion import PermanentCollector
 
 
@@ -16,9 +16,9 @@ class PermanentQuerySet(QuerySet):
         else:
             geter, seter = partial(getattr, obj), partial(setattr, obj)
 
-        if not created and geter(PERMANENT_FIELD, True):
-            seter(PERMANENT_FIELD, None)
-            self.model.objects.filter(id=geter('id')).update(removed=None)
+        if not created and geter(settings.FIELD, True):
+            seter(settings.FIELD, settings.FIELD_DEFAULT)
+            self.model.objects.filter(id=geter('id')).update(removed=settings.FIELD_DEFAULT)
         return obj
 
     def delete(self, force=False):
@@ -52,7 +52,7 @@ class PermanentQuerySet(QuerySet):
     delete.alters_data = True
 
     def restore(self):
-        return self.get_unpatched().update(**{PERMANENT_FIELD: None})
+        return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
         klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
@@ -61,7 +61,7 @@ class PermanentQuerySet(QuerySet):
     def get_unpatched(self):
         qs = self._clone(PermanentQuerySet)
         try:  # Unpatching query if patched
-            if qs.query.where.children[0][0].col == PERMANENT_FIELD:
+            if qs.query.where.children[0][0].col == settings.FIELD:
                 qs.query.where.children = qs.query.where.children[1:]
         except (TypeError, IndexError):
             pass
@@ -72,11 +72,11 @@ class NonDeletedQuerySet(PermanentQuerySet):
     def __init__(self, *args, **kwargs):
         super(NonDeletedQuerySet, self).__init__(*args, **kwargs)
         if not self.query.where:
-            self.query.add_q(Q(**{PERMANENT_FIELD: None}))
+            self.query.add_q(Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
 
 
 class DeletedQuerySet(PermanentQuerySet):
     def __init__(self, *args, **kwargs):
         super(DeletedQuerySet, self).__init__(*args, **kwargs)
         if not self.query.where:
-            self.query.add_q(~Q(**{PERMANENT_FIELD: None}))
+            self.query.add_q(~Q(**{settings.FIELD: settings.FIELD_DEFAULT}))

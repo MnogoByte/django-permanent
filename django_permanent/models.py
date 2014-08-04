@@ -1,6 +1,7 @@
 from django.db import models, router
+from django.utils.module_loading import import_by_path
 
-from . import PERMANENT_FIELD
+from django_permanent import settings
 from .deletion import PermanentCollector
 from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 from .managers import QuerySetManager
@@ -29,8 +30,9 @@ class PermanentModel(models.Model):
     delete.alters_data = True
 
     def restore(self):
-        setattr(self, PERMANENT_FIELD, None)
+        setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
         self.save()
 
 
-PermanentModel.add_to_class(PERMANENT_FIELD, models.DateTimeField(blank=True, null=True, editable=False))
+field = import_by_path(settings.FIELD_CLASS)
+PermanentModel.add_to_class(settings.FIELD, field(**settings.FIELD_KWARGS))
