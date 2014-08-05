@@ -18,7 +18,7 @@ class PermanentQuerySet(QuerySet):
 
         if not created and geter(settings.FIELD, True):
             seter(settings.FIELD, settings.FIELD_DEFAULT)
-            self.model.objects.filter(id=geter('id')).update(removed=settings.FIELD_DEFAULT)
+            self.model.objects.filter(id=geter('id')).update(**{settings.FIELD:settings.FIELD_DEFAULT})
         return obj
 
     def delete(self, force=False):
