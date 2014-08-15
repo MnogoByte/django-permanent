@@ -1,4 +1,8 @@
-from django.db.models import Manager as Manager
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
+from django.db.models import Manager
 
 
 def QuerySetManager(qs):

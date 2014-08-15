@@ -1,0 +1,30 @@
+RawBlameHistory  
+language: python
+before_install:
+  - travis_retry sudo apt-get update -qq
+  - travis_retry sudo apt-get install -qq sloccount
+install:
+  - travis_retry pip install tox coveralls --quiet
+  - travis_retry python setup.py install
+script:
+  - tox
+env:
+  - TOXENV=py26-django14
+  - TOXENV=py26-django15
+  - TOXENV=py26-django16
+  - TOXENV=py27-django14
+  - TOXENV=py27-django15
+  - TOXENV=py27-django16
+  - TOXENV=py27-django17
+  - TOXENV=py33-django15
+  - TOXENV=py33-django16
+  - TOXENV=py33-django17
+  - TOXENV=py34-django15
+  - TOXENV=py34-django16
+  - TOXENV=py34-django17
+branches:
+ only:
+  - django1.7
+after_success:
+  - coverage report
+  - coveralls

@@ -1,9 +1,13 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from functools import partial
 
 from django.db.models.query import QuerySet, ValuesQuerySet
 from django.db.models.query_utils import Q
 
-from django_permanent import settings
+from . import settings
 from .deletion import PermanentCollector
 
 
@@ -18,7 +22,7 @@ class PermanentQuerySet(QuerySet):
 
         if not created and geter(settings.FIELD, True):
             seter(settings.FIELD, settings.FIELD_DEFAULT)
-            self.model.objects.filter(id=geter('id')).update(**{settings.FIELD:settings.FIELD_DEFAULT})
+            self.model.objects.filter(id=geter('id')).update(**{settings.FIELD: settings.FIELD_DEFAULT})
         return obj
 
     def delete(self, force=False):
@@ -28,8 +32,7 @@ class PermanentQuerySet(QuerySet):
         if force:
             return super(PermanentQuerySet, self).delete()
 
-        assert self.query.can_filter(), \
-                "Cannot use 'limit' or 'offset' with delete."
+        assert self.query.can_filter(), "Cannot use 'limit' or 'offset' with delete."
 
         del_query = self._clone()
 

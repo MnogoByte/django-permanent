@@ -1,13 +1,16 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from operator import attrgetter
 
 from django.db import transaction
-from django.db.models.deletion import Collector as BaseCollector
 from django.db.models import signals, sql
+from django.db.models.deletion import Collector as BaseCollector
 from django.utils import six
 from django.utils.timezone import now
 
-from django_permanent import settings
+from . import settings
 
 
 class PermanentCollector(BaseCollector):
@@ -15,7 +18,7 @@ class PermanentCollector(BaseCollector):
 
     def delete(self):
         """
-            Patched the BaseCollector.delete with soft delete support for PermanentModel
+        Patched the BaseCollector.delete with soft delete support for PermanentModel
         """
         from .models import PermanentModel
         time = now()
