@@ -24,7 +24,7 @@ env:
   - TOXENV=py34-django17
 branches:
  only:
-  - django1.7
+  - master
 after_success:
   - coverage report
   - coveralls
