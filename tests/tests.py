@@ -1,10 +1,19 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from django.test import TestCase
 from django.utils.timezone import now
-from django.utils.unittest.case import skipUnless
+try:
+    from unittest import skipUnless
+except ImportError:
+    from django.utils.unittest.case import skipUnless
 
-from django_permanent.tests.cond import model_utils_installed
-
-from .models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager
+from .cond import model_utils_installed
+from .models import (
+    MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent,
+    MyPermanentModelWithManager
+)
 
 
 class TestDelete(TestCase):

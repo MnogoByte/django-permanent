@@ -1,15 +1,17 @@
+# -*- encoding: utf-8 -*-
+
 import os, sys
-from django.conf import settings
 import django
+from django.conf import settings
 
 
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
         'django_permanent',
-        'django_permanent.tests',
+        'tests',
     ),
     DATABASES={
-        'default':{
+        'default': {
             'ENGINE': 'django.db.backends.sqlite3'
         }
     }
@@ -22,7 +24,7 @@ def runtests(*test_args):
     if hasattr(django, 'setup'):
         django.setup()
     if not test_args:
-        test_args = ['django_permanent']
+        test_args = ['django_permanent', 'tests']
 
     parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)

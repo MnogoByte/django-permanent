@@ -2,3 +2,7 @@ env
 dist
 MANIFEST
 *.pyc
+*.egg*
+.tox/
+build/
+src/

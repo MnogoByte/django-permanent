@@ -1,5 +1,7 @@
-# -*- coding: utf-8 -*-
-from setuptools import setup
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+
+from setuptools import setup, find_packages
 
 
 setup(name='django-permanent',
@@ -9,7 +11,7 @@ setup(name='django-permanent',
       author_email='alex@erix.ru',
       long_description = open('README.rst').read(),
       url='https://github.com/meteozond/django-permanent',
-      packages=['django_permanent'],
+      packages=find_packages(exclude=['tests*']),
       install_requires=["Django>=1.6.0"],
       keywords = ['django', 'delete', 'undelete', 'safedelete', 'remove', 'restore', 'softdelete', 'logicaldelete', 'trash'],
       classifiers=[

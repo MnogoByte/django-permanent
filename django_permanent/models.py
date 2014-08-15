@@ -1,10 +1,14 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from django.db import models, router
 from django.utils.module_loading import import_by_path
 
-from django_permanent import settings
+from . import settings
 from .deletion import PermanentCollector
-from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 from .managers import QuerySetManager
+from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 
 
 class PermanentModel(models.Model):
@@ -21,7 +25,10 @@ class PermanentModel(models.Model):
 
         else:
             using = using or router.db_for_write(self.__class__, instance=self)
-            assert self._get_pk_val() is not None, "%s object can't be deleted because its %s attribute is set to None." % (self._meta.object_name, self._meta.pk.attname)
+            assert self._get_pk_val() is not None, (
+                "%s object can't be deleted because its %s attribute is set to None." %
+                (self._meta.object_name, self._meta.pk.attname)
+            )
 
             collector = PermanentCollector(using=using)
             collector.collect([self])

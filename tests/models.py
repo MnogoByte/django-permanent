@@ -1,12 +1,16 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from django.db import models
-from django.db.models import Model
-from django_permanent.models import PermanentModel
 from django_permanent.managers import MultiPassThroughManager
+from django_permanent.models import PermanentModel
 from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
+
 from .cond import model_utils_installed
 
 
-class BaseTestModel(Model):
+class BaseTestModel(models.Model):
 
     class Meta():
         abstract = True

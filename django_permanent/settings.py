@@ -1,3 +1,7 @@
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from django.conf import settings
 
 FIELD_CLASS = getattr(settings, 'PERMANENT_FIELD_CLASS', 'django.db.models.DateTimeField')

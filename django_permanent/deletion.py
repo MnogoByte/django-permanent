@@ -1,13 +1,16 @@
-# -*- coding: utf-8 -*-
+# -*- encoding: utf-8 -*-
+
+from __future__ import absolute_import
+
 from operator import attrgetter
 
 from django.db import transaction
-from django.db.models.deletion import Collector as BaseCollector
 from django.db.models import signals, sql
+from django.db.models.deletion import Collector as BaseCollector
 from django.utils import six
 from django.utils.timezone import now
 
-from django_permanent import settings
+from . import settings
 
 
 class PermanentCollector(BaseCollector):
@@ -15,7 +18,7 @@ class PermanentCollector(BaseCollector):
 
     def delete(self):
         """
-            Patched the BaseCollector.delete with soft delete support for PermanentModel
+        Patched the BaseCollector.delete with soft delete support for PermanentModel
         """
         from .models import PermanentModel
         time = now()
@@ -29,7 +32,7 @@ class PermanentCollector(BaseCollector):
         # end of a transaction.
         self.sort()
 
-        with transaction.commit_on_success_unless_managed(using=self.using):
+        with transaction.atomic(using=self.using, savepoint=False):
             # send pre_delete signals
             for model, obj in self.instances_with_model():
                 if not model._meta.auto_created:
