@@ -50,7 +50,7 @@ class PermanentCollector(BaseCollector):
             for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
                 query = sql.UpdateQuery(model)
                 for (field, value), instances in six.iteritems(instances_for_fieldvalues):
-                    query.update_batch([obj.pk for obj in instances],
+                    query.update_batch([obj.pk for obj in instances if not isinstance(obj, PermanentModel)],
                                        {field.name: value}, self.using)
 
             # reverse instance collections
