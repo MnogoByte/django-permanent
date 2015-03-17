@@ -5,7 +5,8 @@ from django.utils.unittest import skipUnless
 
 from django_permanent.tests.cond import model_utils_installed
 
-from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager
+from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager, \
+    M2MFrom, M2MTo, PermanentM2MThrough
 
 
 class TestDelete(TestCase):
@@ -70,6 +71,35 @@ class TestIntegration(TestCase):
         PermanentDepended.objects.create(dependance=permanent)
         PermanentDepended.objects.create(dependance=permanent, removed=now())
         self.assertEqual(permanent.permanentdepended_set.count(), 1)
+        self.assertEqual(PermanentDepended.objects.count(), 1)
+
+    def test_m2m_manager(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
+        self.assertEqual(_from.m2mto_set.count(), 0)
+
+    def test_m2m_manager_clear(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to)
+        self.assertEqual(_from.m2mto_set.count(), 1)
+        _from.m2mto_set.clear()
+        self.assertEqual(_from.m2mto_set.count(), 0)
+        self.assertEqual(PermanentM2MThrough.all_objects.count(), 1)
+        self.assertEqual(M2MFrom.objects.count(), 1)
+        self.assertEqual(M2MTo.objects.count(), 1)
+
+    def test_m2m_manager_delete(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to)
+        self.assertEqual(_from.m2mto_set.count(), 1)
+        _from.m2mto_set.all().delete()
+        self.assertEqual(_from.m2mto_set.count(), 0)
+        self.assertEqual(PermanentM2MThrough.all_objects.count(), 1)
+        self.assertEqual(M2MFrom.objects.count(), 1)
+        self.assertEqual(M2MTo.objects.count(), 0)
 
 
 class TestPassThroughManager(TestCase):

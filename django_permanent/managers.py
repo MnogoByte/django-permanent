@@ -1,4 +1,5 @@
 from django.db.models import Manager as Manager
+from django_permanent import settings
 
 
 def QuerySetManager(qs):
@@ -7,6 +8,9 @@ def QuerySetManager(qs):
         qs_class = qs
 
         def get_queryset(self):
+            from django_permanent.models import PermanentModel
+            if self.__class__.__name__ == 'ManyRelatedManager' and issubclass(self.through, PermanentModel):
+                self.core_filters['%s__%s' % (self.source_field.related_query_name(), settings.FIELD)] = None
             return self.qs_class(self.model, using=self._db)
 
         def get_restore_or_create(self, *args, **kwargs):

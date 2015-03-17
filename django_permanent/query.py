@@ -8,19 +8,8 @@ from .deletion import PermanentCollector
 from django import VERSION as DJANGO_VERSION
 
 
-class PermanentQuerySet(QuerySet):
-    def get_restore_or_create(self, **kwargs):
-        qs = self.get_unpatched()
-        obj, created = qs.get_or_create(**kwargs)
-        if isinstance(obj, dict):
-            geter, seter = obj.get, obj.__setitem__
-        else:
-            geter, seter = partial(getattr, obj), partial(setattr, obj)
-
-        if not created and geter(settings.FIELD, True):
-            seter(settings.FIELD, settings.FIELD_DEFAULT)
-            self.model.all_objects.filter(id=geter('id')).update(**{settings.FIELD: settings.FIELD_DEFAULT})
-        return obj
+class CustomCollectorQuerySet(QuerySet):
+    collector_class = None
 
     def delete(self, force=False):
         """
@@ -30,7 +19,7 @@ class PermanentQuerySet(QuerySet):
             return super(PermanentQuerySet, self).delete()
 
         assert self.query.can_filter(), \
-                "Cannot use 'limit' or 'offset' with delete."
+            "Cannot use 'limit' or 'offset' with delete."
 
         del_query = self._clone()
 
@@ -44,13 +33,32 @@ class PermanentQuerySet(QuerySet):
         del_query.query.select_related = False
         del_query.query.clear_ordering(force_empty=True)
 
-        collector = PermanentCollector(using=del_query.db)
+        collector = self.collector_class(using=del_query.db)
         collector.collect(del_query)
         collector.delete()
 
         # Clear the result cache, in case this QuerySet gets reused.
         self._result_cache = None
     delete.alters_data = True
+
+
+class PermanentCollectorQuerySet(CustomCollectorQuerySet):
+    collector_class = PermanentCollector
+
+
+class PermanentQuerySet(PermanentCollectorQuerySet):
+    def get_restore_or_create(self, **kwargs):
+        qs = self.get_unpatched()
+        obj, created = qs.get_or_create(**kwargs)
+        if isinstance(obj, dict):
+            geter, seter = obj.get, obj.__setitem__
+        else:
+            geter, seter = partial(getattr, obj), partial(setattr, obj)
+
+        if not created and geter(settings.FIELD, True):
+            seter(settings.FIELD, settings.FIELD_DEFAULT)
+            self.model.all_objects.filter(id=geter('id')).update(**{settings.FIELD: settings.FIELD_DEFAULT})
+        return obj
 
     def restore(self):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
