@@ -1,3 +1,4 @@
+from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
 from django.utils.unittest import skipUnless
@@ -37,6 +38,24 @@ class TestDelete(TestCase):
         self.permanent.delete()
         self.assertEqual(list(model.objects.all()), [])
         self.assertEqual(list(model.deleted_objects.all()), [depended])
+        new_depended = model.all_objects.get(pk=depended.pk)
+        new_permanent = MyPermanentModel.all_objects.get(pk=self.permanent.pk)
+        self.assertTrue(new_depended.removed)
+        self.assertTrue(new_permanent.removed)
+        self.assertEqual(new_depended.dependance.pk, self.permanent.pk)
+
+    def test_double_delete(self):
+        self.called = 0
+        def post_delete_receiver(*args, **kwargs):
+            self.called += 1
+        post_delete.connect(post_delete_receiver, sender=PermanentDepended)
+
+        model = PermanentDepended
+        model.objects.create(dependance=self.permanent, removed=now())
+        model.objects.create(dependance=self.permanent)
+        self.permanent.delete()
+        self.assertEqual(self.called, 1)
+        self.permanent.delete()
 
 
 class TestIntegration(TestCase):
