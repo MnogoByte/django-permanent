@@ -42,7 +42,7 @@ class TestDelete(TestCase):
         new_permanent = MyPermanentModel.all_objects.get(pk=self.permanent.pk)
         self.assertTrue(new_depended.removed)
         self.assertTrue(new_permanent.removed)
-        self.assertEqual(new_depended.dependance.pk, self.permanent.pk)
+        self.assertEqual(new_depended.dependance_id, self.permanent.id)
 
     def test_double_delete(self):
         self.called = 0
@@ -88,15 +88,20 @@ class TestCustomQSMethods(TestCase):
     def test__get_restore_or_create__restore(self):
         obj = MyPermanentModel.objects.create(name="old", removed=now())
         self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, obj.id)
+        self.assertEqual(MyPermanentModel.objects.count(), 1)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 1)
 
     def test__get_restore_or_create__create(self):
         MyPermanentModel.objects.get_restore_or_create(name="old")
         self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
+        self.assertEqual(MyPermanentModel.objects.count(), 1)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 1)
 
     def test_restore(self):
         MyPermanentModel.objects.create(name="old", removed=now())
         MyPermanentModel.objects.filter(name="old").restore()
         self.assertEqual(MyPermanentModel.objects.count(), 1)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 1)
 
 
 class TestCustomManager(TestCase):
