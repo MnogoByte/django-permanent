@@ -65,6 +65,12 @@ class TestIntegration(TestCase):
         MyPermanentModel.objects.prefetch_related('nonremovabledepended_set').all()
         NonRemovableDepended.all_objects.prefetch_related('dependance').all()
 
+    def test_related_manager_bug(self):
+        permanent = MyPermanentModel.objects.create()
+        PermanentDepended.objects.create(dependance=permanent)
+        PermanentDepended.objects.create(dependance=permanent, removed=now())
+        self.assertEqual(permanent.permanentdepended_set.count(), 1)
+
 
 class TestPassThroughManager(TestCase):
     @skipUnless(model_utils_installed, "Missing django-model-utils")
