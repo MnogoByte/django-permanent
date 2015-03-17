@@ -5,6 +5,7 @@ from django.db.models.query_utils import Q
 
 from django_permanent import settings
 from .deletion import PermanentCollector
+from django import VERSION as DJANGO_VERSION
 
 
 class PermanentQuerySet(QuerySet):
@@ -60,11 +61,15 @@ class PermanentQuerySet(QuerySet):
 
     def get_unpatched(self):
         qs = self._clone(PermanentQuerySet)
-        try:  # Unpatching query if patched
-            if qs.query.where.children[0][0].col == settings.FIELD:
-                qs.query.where.children = qs.query.where.children[1:]
-        except (TypeError, IndexError):
-            pass
+        condition = qs.query.where.children[0]
+
+        if DJANGO_VERSION > (1, 7, -1):  # 1.7 changes query building mechanism
+            is_patched = hasattr(condition, 'lhs') and condition.lhs.source.name == settings.FIELD
+        else:
+            is_patched = isinstance(condition, tuple) and condition[0].col == settings.FIELD
+
+        if is_patched:
+            del qs.query.where.children[0]
         return qs
 
 
