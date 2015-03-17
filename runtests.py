@@ -12,7 +12,8 @@ DEFAULT_SETTINGS = dict(
         'default':{
             'ENGINE': 'django.db.backends.sqlite3'
         }
-    }
+    },
+    MIDDLEWARE_CLASSES = []
 )
 
 
