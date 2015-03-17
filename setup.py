@@ -3,7 +3,7 @@ from setuptools import setup
 
 
 setup(name='django-permanent',
-      version='0.1.5',
+      version='1.0.2',
       description='Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.',
       author='Alexander Klimenko',
       author_email='alex@erix.ru',
