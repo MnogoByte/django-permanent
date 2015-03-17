@@ -3,7 +3,7 @@ from django.db.models import Model
 from django_permanent.models import PermanentModel
 from django_permanent.managers import MultiPassThroughManager
 from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
-from .cond import model_utils_installed
+from django_permanent.tests.cond import model_utils_installed
 
 
 class BaseTestModel(Model):

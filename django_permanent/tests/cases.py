@@ -1,10 +1,10 @@
 from django.test import TestCase
 from django.utils.timezone import now
-from django.utils.unittest.case import skipUnless
+from django.utils.unittest import skipUnless
 
 from django_permanent.tests.cond import model_utils_installed
 
-from .models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager
+from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager
 
 
 class TestDelete(TestCase):
@@ -62,7 +62,6 @@ class TestCustomQSMethods(TestCase):
 
     def test__get_restore_or_create__restore(self):
         obj = MyPermanentModel.objects.create(name="old", removed=now())
-        obj.delete()
         self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, obj.id)
 
     def test__get_restore_or_create__create(self):
