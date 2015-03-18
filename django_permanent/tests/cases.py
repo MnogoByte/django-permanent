@@ -133,6 +133,13 @@ class TestCustomQSMethods(TestCase):
         self.assertEqual(MyPermanentModel.objects.count(), 1)
         self.assertEqual(MyPermanentModel.all_objects.count(), 1)
 
+    def test_restore_on_create(self):
+        MyPermanentModel.Permanent.restore_on_create = True
+        first = MyPermanentModel.objects.create(name='unique', removed=now())
+        second = MyPermanentModel.objects.create(name='unique')
+        self.assertEqual(first, second)
+        MyPermanentModel.Permanent.restore_on_create = False
+
 
 class TestCustomManager(TestCase):
     def setUp(self):

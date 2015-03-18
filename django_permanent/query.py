@@ -47,6 +47,11 @@ class PermanentCollectorQuerySet(CustomCollectorQuerySet):
 
 
 class PermanentQuerySet(PermanentCollectorQuerySet):
+    def create(self, **kwargs):
+        if self.model.Permanent.restore_on_create:
+            return self.get_restore_or_create(**kwargs)
+        return super(PermanentQuerySet, self).create(**kwargs)
+
     def get_restore_or_create(self, **kwargs):
         qs = self.get_unpatched()
         obj, created = qs.get_or_create(**kwargs)

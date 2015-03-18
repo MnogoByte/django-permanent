@@ -16,6 +16,9 @@ class PermanentModel(models.Model):
     class Meta:
         abstract = True
 
+    class Permanent:
+        restore_on_create = False
+
     def delete(self, using=None, force=None):
         if force:
             super(PermanentModel, self).delete(using=using)

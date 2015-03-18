@@ -33,6 +33,15 @@ User Force kwarg to enforce physical deletion.::
     >>> MyModel._base_manager.count()
     0
 
+If you need to restore deleted model instead of creating the same use `restore_on_create` attribute.
+
+    class MyModel(PermanentModel):
+        class Permanent:
+          restore_on_create = True
+
+In this case QuerySet provides check existence of same attributes object and restores it if it was removed, creates a
+new if not.
+
 Managers
 ================
 
