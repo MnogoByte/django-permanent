@@ -1,8 +1,8 @@
 from django.db import models
 from django.db.models import Model
 from django_permanent.models import PermanentModel
-from django_permanent.managers import MultiPassThroughManager, QuerySetManager
-from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet, PermanentCollectorQuerySet
+from django_permanent.managers import MultiPassThroughManager
+from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
 from django_permanent.tests.cond import model_utils_installed
 
 
@@ -33,7 +33,7 @@ class PermanentDepended(BaseTestModel, PermanentModel):
 
 
 class M2MFrom(Model):
-    objects = QuerySetManager(PermanentCollectorQuerySet)
+    pass
 
 
 class PermanentM2MThrough(PermanentModel):
@@ -43,7 +43,6 @@ class PermanentM2MThrough(PermanentModel):
 
 class M2MTo(Model):
     m2m_from = models.ManyToManyField('M2MFrom', through=PermanentM2MThrough)
-    objects = QuerySetManager(PermanentCollectorQuerySet)
 
 
 class MyPermanentQuerySet(PermanentQuerySet):

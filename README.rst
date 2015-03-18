@@ -101,25 +101,4 @@ By default field is named removed, but you can override it by PERMANENT_FIELD va
 Requirements
 ============
 
-Django 1.6.x required. To cover Django 1.5 needs use 0.1.4 branch.
-
-Many-to-many relations
-======================
-
-By default to provide m2m objects lookups and operations django uses first object manager only. Because of that
-related manager shows removed objects on non PermanentModel m2m field, and even PermanentModel object could be deleted
-from database. To prevent it in a mixed soft/hard deletion configuration you have to override non PermanentModel
-manager.::
-
-
-  from django_permanent.managers import QuerySetManager
-  from django_permanent.query import PermanentCollectorQuerySet
-
-
-  class Permanent(PermanentModel):
-    pass
-
-
-  class Regular(models.Model):
-    remote = models.ForeignKey(Permanent)
-    objects = QuerySetManager(PermanentCollectorQuerySet)
+Django min 1.6.x required. To cover Django 1.5 needs use 0.1.4 branch.

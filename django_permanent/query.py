@@ -4,49 +4,11 @@ from django.db.models.query import QuerySet, ValuesQuerySet
 from django.db.models.query_utils import Q
 
 from django_permanent import settings
-from .deletion import PermanentCollector
 from django import VERSION as DJANGO_VERSION
 
 
-class CustomCollectorQuerySet(QuerySet):
-    collector_class = None
 
-    def delete(self, force=False):
-        """
-        Deletes the records in the current QuerySet.
-        """
-        if force:
-            return super(PermanentQuerySet, self).delete()
-
-        assert self.query.can_filter(), \
-            "Cannot use 'limit' or 'offset' with delete."
-
-        del_query = self._clone()
-
-        # The delete is actually 2 queries - one to find related objects,
-        # and one to delete. Make sure that the discovery of related
-        # objects is performed on the same database as the deletion.
-        del_query._for_write = True
-
-        # Disable non-supported fields.
-        del_query.query.select_for_update = False
-        del_query.query.select_related = False
-        del_query.query.clear_ordering(force_empty=True)
-
-        collector = self.collector_class(using=del_query.db)
-        collector.collect(del_query)
-        collector.delete()
-
-        # Clear the result cache, in case this QuerySet gets reused.
-        self._result_cache = None
-    delete.alters_data = True
-
-
-class PermanentCollectorQuerySet(CustomCollectorQuerySet):
-    collector_class = PermanentCollector
-
-
-class PermanentQuerySet(PermanentCollectorQuerySet):
+class PermanentQuerySet(QuerySet):
     def create(self, **kwargs):
         if self.model.Permanent.restore_on_create:
             return self.get_restore_or_create(**kwargs)
