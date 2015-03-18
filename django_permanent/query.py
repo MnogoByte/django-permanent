@@ -7,7 +7,6 @@ from django_permanent import settings
 from django import VERSION as DJANGO_VERSION
 
 
-
 class PermanentQuerySet(QuerySet):
     def create(self, **kwargs):
         if self.model.Permanent.restore_on_create:
@@ -15,8 +14,7 @@ class PermanentQuerySet(QuerySet):
         return super(PermanentQuerySet, self).create(**kwargs)
 
     def get_restore_or_create(self, **kwargs):
-        qs = self.get_unpatched()
-        obj, created = qs.get_or_create(**kwargs)
+        obj, created = QuerySet(self.model).get_or_create(**kwargs)
         if isinstance(obj, dict):
             geter, seter = obj.get, obj.__setitem__
         else:
@@ -28,24 +26,11 @@ class PermanentQuerySet(QuerySet):
         return obj
 
     def restore(self):
-        return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
+        return QuerySet(self.model).update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
         klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
         return self._clone(klass=klass, setup=True, _fields=fields)
-
-    def get_unpatched(self):
-        qs = self._clone(PermanentQuerySet)
-        condition = qs.query.where.children[0]
-
-        if DJANGO_VERSION > (1, 7, -1):  # 1.7 changes query building mechanism
-            is_patched = hasattr(condition, 'lhs') and condition.lhs.source.name == settings.FIELD
-        else:
-            is_patched = isinstance(condition, tuple) and condition[0].col == settings.FIELD
-
-        if is_patched:
-            del qs.query.where.children[0]
-        return qs
 
 
 class NonDeletedQuerySet(PermanentQuerySet):
