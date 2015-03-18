@@ -56,7 +56,6 @@ class TestDelete(TestCase):
         model.objects.create(dependance=self.permanent)
         self.permanent.delete()
         self.assertEqual(self.called, 1)
-        self.permanent.delete()
 
 
 class TestIntegration(TestCase):
