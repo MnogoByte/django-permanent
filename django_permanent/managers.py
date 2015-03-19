@@ -1,11 +1,6 @@
 from django.db.models import Manager as Manager
+from django.db.models.fields import related
 from django_permanent import settings
-
-
-def patch_many_related_manager(manager):
-    from django_permanent.models import PermanentModel
-    if manager.__class__.__name__ == 'ManyRelatedManager' and issubclass(manager.through, PermanentModel):
-        manager.core_filters['%s__%s' % (manager.source_field.related_query_name(), settings.FIELD)] = None
 
 
 def QuerySetManager(qs):
@@ -14,7 +9,6 @@ def QuerySetManager(qs):
         qs_class = qs
 
         def get_queryset(self):
-            patch_many_related_manager(self)
             return self.qs_class(self.model, using=self._db)
 
         def get_restore_or_create(self, *args, **kwargs):
@@ -32,9 +26,31 @@ def MultiPassThroughManager(*classes):
     return PassThroughManager.for_queryset_class(type(name, classes, {}))()
 
 
-def get_queryset(self):
-    patch_many_related_manager(self)
-    return self.old_get_queryset()
+class PermanentMixIn(object):
+    def get_queryset(self, *args, **kwargs):
+        from django_permanent.models import PermanentModel
+        if issubclass(self.through, PermanentModel):
+            self.core_filters['%s__%s' % (self.source_field.related_query_name(), settings.FIELD)] = settings.FIELD_DEFAULT
+        return super(PermanentMixIn, self).get_queryset(*args, **kwargs)
+
+    def get_prefetch_queryset(self, *args, **kwargs):
+        from django_permanent.models import PermanentModel
+        result = super(PermanentMixIn, self).get_prefetch_queryset(*args, **kwargs)
+        if issubclass(self.through, PermanentModel):
+            join_table = self.through._meta.db_table
+            return (result[0].extra(where={"%s.%s" % (join_table, settings.FIELD): settings.FIELD_DEFAULT}),) + result[1:]
+        return result
 
 
-Manager.get_queryset, Manager.old_get_queryset = get_queryset, Manager.get_queryset
+def mix_into_result(*classes):
+    def dec1(func):
+        def dec2(*args, **kwargs):
+            klass = func(*args, **kwargs)
+            bases = classes + (klass, )
+            name = "".join([klass.__name__ for klass in bases])
+            return type(name, bases, {})
+        return dec2
+    return dec1
+
+
+related.create_many_related_manager = mix_into_result(PermanentMixIn)(related.create_many_related_manager)
