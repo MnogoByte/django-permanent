@@ -102,6 +102,22 @@ class TestIntegration(TestCase):
         self.assertEqual(M2MFrom.objects.count(), 1)
         self.assertEqual(M2MTo.objects.count(), 0)
 
+    def test_m2m_prefetch_related(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to)
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
+        self.assertSequenceEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
+        self.assertEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
+
+    def test_m2m_select_related(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to)
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
+        self.assertSequenceEqual(M2MFrom.objects.select_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
+        self.assertEqual(M2MFrom.objects.select_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
+
 
 class TestPassThroughManager(TestCase):
     @skipUnless(model_utils_installed, "Missing django-model-utils")
