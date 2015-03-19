@@ -32,7 +32,7 @@ class PermanentDepended(BaseTestModel, PermanentModel):
     dependance = models.ForeignKey(MyPermanentModel)
 
 
-class M2MFrom(Model):
+class M2MFrom(BaseTestModel):
     pass
 
 
@@ -41,7 +41,7 @@ class PermanentM2MThrough(PermanentModel):
     m2m_to = models.ForeignKey('M2MTo')
 
 
-class M2MTo(Model):
+class M2MTo(BaseTestModel):
     m2m_from = models.ManyToManyField('M2MFrom', through=PermanentM2MThrough)
 
 
