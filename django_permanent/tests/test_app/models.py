@@ -21,15 +21,15 @@ class MyPermanentModel(BaseTestModel, PermanentModel):
 
 
 class RemovableDepended(BaseTestModel):
-    dependance = models.ForeignKey(MyPermanentModel)
+    dependence = models.ForeignKey(MyPermanentModel)
 
 
 class NonRemovableDepended(BaseTestModel, PermanentModel):
-    dependance = models.ForeignKey(MyPermanentModel, on_delete=models.DO_NOTHING)
+    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.DO_NOTHING)
 
 
 class PermanentDepended(BaseTestModel, PermanentModel):
-    dependance = models.ForeignKey(MyPermanentModel)
+    dependence = models.ForeignKey(MyPermanentModel)
 
 
 class M2MFrom(BaseTestModel):

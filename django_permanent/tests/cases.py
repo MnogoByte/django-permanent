@@ -23,19 +23,19 @@ class TestDelete(TestCase):
 
     def test_depended(self):
         model = RemovableDepended
-        model.objects.create(dependance=self.permanent)
+        model.objects.create(dependence=self.permanent)
         self.permanent.delete()
         self.assertEqual(list(model.objects.all()), [])
 
     def test_non_removable_depended(self):
         model = NonRemovableDepended
-        depended = model.objects.create(dependance=self.permanent)
+        depended = model.objects.create(dependence=self.permanent)
         self.permanent.delete()
         self.assertEqual(list(model.objects.all()), [depended])
 
     def test_permanent_depended(self):
         model = PermanentDepended
-        depended = model.objects.create(dependance=self.permanent)
+        depended = model.objects.create(dependence=self.permanent)
         self.permanent.delete()
         self.assertEqual(list(model.objects.all()), [])
         self.assertEqual(list(model.deleted_objects.all()), [depended])
@@ -43,7 +43,7 @@ class TestDelete(TestCase):
         new_permanent = MyPermanentModel.all_objects.get(pk=self.permanent.pk)
         self.assertTrue(new_depended.removed)
         self.assertTrue(new_permanent.removed)
-        self.assertEqual(new_depended.dependance_id, self.permanent.id)
+        self.assertEqual(new_depended.dependence_id, self.permanent.id)
 
     def test_double_delete(self):
         self.called = 0
@@ -52,8 +52,8 @@ class TestDelete(TestCase):
         post_delete.connect(post_delete_receiver, sender=PermanentDepended)
 
         model = PermanentDepended
-        model.objects.create(dependance=self.permanent, removed=now())
-        model.objects.create(dependance=self.permanent)
+        model.objects.create(dependence=self.permanent, removed=now())
+        model.objects.create(dependence=self.permanent)
         self.permanent.delete()
         self.assertEqual(self.called, 1)
 
@@ -61,14 +61,14 @@ class TestDelete(TestCase):
 class TestIntegration(TestCase):
     def test_prefetch_bug(self):
         permanent1 = MyPermanentModel.objects.create()
-        NonRemovableDepended.objects.create(dependance=permanent1)
+        NonRemovableDepended.objects.create(dependence=permanent1)
         MyPermanentModel.objects.prefetch_related('nonremovabledepended_set').all()
-        NonRemovableDepended.all_objects.prefetch_related('dependance').all()
+        NonRemovableDepended.all_objects.prefetch_related('dependence').all()
 
     def test_related_manager_bug(self):
         permanent = MyPermanentModel.objects.create()
-        PermanentDepended.objects.create(dependance=permanent)
-        PermanentDepended.objects.create(dependance=permanent, removed=now())
+        PermanentDepended.objects.create(dependence=permanent)
+        PermanentDepended.objects.create(dependence=permanent, removed=now())
         self.assertEqual(permanent.permanentdepended_set.count(), 1)
         self.assertEqual(PermanentDepended.objects.count(), 1)
 
