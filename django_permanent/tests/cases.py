@@ -118,6 +118,12 @@ class TestIntegration(TestCase):
         self.assertSequenceEqual(M2MFrom.objects.select_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
         self.assertEqual(M2MFrom.objects.select_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
 
+    def test_m2m_all_objects(self):
+        dependence = MyPermanentModel.objects.create(removed=now())
+        depended = NonRemovableDepended.objects.create(dependence=dependence, removed=now())
+        depended = NonRemovableDepended.all_objects.get(pk=depended.pk)
+        self.assertEqual(depended.dependence, dependence)
+
 
 class TestPassThroughManager(TestCase):
     @skipUnless(model_utils_installed, "Missing django-model-utils")
