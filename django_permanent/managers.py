@@ -1,4 +1,4 @@
-from django.db.models import Manager as Manager
+from django.db.models import Manager
 from django.db.models.fields import related
 from django_permanent import settings
 
