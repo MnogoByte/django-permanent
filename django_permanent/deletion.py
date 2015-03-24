@@ -60,6 +60,8 @@ def delete(self):
             if issubclass(model, PermanentModel):
                 query = sql.UpdateQuery(model)
                 query.update_batch(pk_list, {FIELD: time}, self.using)
+                for instance in instances:
+                    setattr(instance, FIELD, time)
             else:
                 query = sql.DeleteQuery(model)
                 query.delete_batch(pk_list, self.using)

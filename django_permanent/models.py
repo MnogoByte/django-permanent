@@ -22,10 +22,7 @@ class PermanentModel(models.Model):
     def restore(self):
         self.__class__.objects.filter(pk=self.pk).restore()
         setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
-
-    def delete(self, *args, **kwargs):
-        setattr(self, settings.FIELD, now())
-        super(PermanentModel, self).delete(*args, **kwargs)
+        self.save(update_fields=[settings.FIELD])
 
 
 field = import_by_path(settings.FIELD_CLASS)

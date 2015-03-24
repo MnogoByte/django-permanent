@@ -5,7 +5,7 @@ CHANGELOG
 1.0.7 (unreleased)
 ==================
 
-- nothing changed yet
++ Setting trigger field for all removed objects
 
 
 1.0.6 (2015-03-24)
