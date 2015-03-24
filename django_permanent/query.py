@@ -36,6 +36,12 @@ class PermanentQuerySet(QuerySet):
     # I don't like the bottom code, but most of operations during QuerySet cloning Django do outside of __init___,
     # so I couldn't find a proper solution to provide transparency of restoration. If you does mail me please.
 
+    def _update(self, values):
+        # Modifying trigger field have to effect all objects
+        if settings.FIELD in [field.attname for field, _ , _ in values] and not getattr(self, '_unpatched', False):
+            return self.get_unpatched()._update(values)
+        return super(PermanentQuerySet, self)._update(values)
+
     def get_unpatched(self):
         qs = self._clone()
         qs._unpatch()

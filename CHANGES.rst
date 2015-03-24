@@ -6,6 +6,7 @@ CHANGELOG
 ==================
 
 + Setting trigger field for all removed objects
++ Trigger field model save now affects all objects
 
 
 1.0.6 (2015-03-24)

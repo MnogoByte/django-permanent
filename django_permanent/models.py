@@ -20,7 +20,6 @@ class PermanentModel(models.Model):
         restore_on_create = False
 
     def restore(self):
-        self.__class__.objects.filter(pk=self.pk).restore()
         setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
         self.save(update_fields=[settings.FIELD])
 
