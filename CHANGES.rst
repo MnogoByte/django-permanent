@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.0.6 (developing)
+1.0.6 (2015-03-24)
 ==================
 
 - Fixed PermanentModel.restore() fail
