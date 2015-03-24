@@ -17,6 +17,7 @@ class TestDelete(TestCase):
         model = MyPermanentModel
         permanent2 = model.objects.create()
         self.permanent.delete()
+        self.assertTrue(self.permanent.removed)
         self.assertEqual(list(model.objects.all()), [permanent2])
         self.assertEqual(list(model.all_objects.all()), [self.permanent, permanent2])
         self.assertEqual(list(model.deleted_objects.all()), [self.permanent])

@@ -23,6 +23,10 @@ class PermanentModel(models.Model):
         self.__class__.objects.filter(pk=self.pk).restore()
         setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
 
+    def delete(self, *args, **kwargs):
+        setattr(self, settings.FIELD, now())
+        super(PermanentModel, self).delete(*args, **kwargs)
+
 
 field = import_by_path(settings.FIELD_CLASS)
 PermanentModel.add_to_class(settings.FIELD, field(**settings.FIELD_KWARGS))

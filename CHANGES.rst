@@ -6,6 +6,7 @@ CHANGELOG
 ==================
 
 - Fixed PermanentModel.restore() fail
++ PermanentModel.delete() now sets removed attribute
 
 
 1.0.5 (2015-03-32)
