@@ -5,7 +5,8 @@ CHANGELOG
 1.0.6 (developing)
 ==================
 
-- nothing changed yet
+- Fixed PermanentModel.restore() fail
+
 
 1.0.5 (2015-03-32)
 ==================
