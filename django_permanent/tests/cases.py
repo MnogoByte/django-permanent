@@ -57,6 +57,12 @@ class TestDelete(TestCase):
         self.permanent.delete()
         self.assertEqual(self.called, 1)
 
+    def test_restore(self):
+        self.permanent.delete()
+        self.permanent.restore()
+        self.assertFalse(self.permanent.removed)
+        self.assertEqual(list(MyPermanentModel.objects.all()), [self.permanent])
+
 
 class TestIntegration(TestCase):
     def test_prefetch_bug(self):
