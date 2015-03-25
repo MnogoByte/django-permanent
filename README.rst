@@ -96,7 +96,7 @@ Method get_restore_or_create
 Field name
 ================
 
-By default field is named removed, but you can override it by PERMANENT_FIELD variable in you settings.py.::
+By default field is named removed, but you can override it by PERMANENT_FIELD variable in your settings.py.::
 
     PERMANENT_FIELD = 'deleted'
 
