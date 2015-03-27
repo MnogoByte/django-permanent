@@ -10,7 +10,7 @@ from django.utils.timezone import now
 from .settings import FIELD
 
 
-def delete(self):
+def delete(self, force=False):
     """
         Patched the BaseCollector.delete with soft delete support for PermanentModel
     """
@@ -36,7 +36,7 @@ def delete(self):
 
         # fast deletes
         for qs in self.fast_deletes:
-            if issubclass(qs.model, PermanentModel):  # Update PermanentModel instance
+            if issubclass(qs.model, PermanentModel) and not force:  # Update PermanentModel instance
                 pk_list = [obj.pk for obj in qs]
                 qs = sql.UpdateQuery(qs.model)
                 qs.update_batch(pk_list, {FIELD: time}, self.using)
@@ -47,7 +47,7 @@ def delete(self):
         for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
             query = sql.UpdateQuery(model)
             for (field, value), instances in six.iteritems(instances_for_fieldvalues):
-                query.update_batch([obj.pk for obj in instances if not isinstance(obj, PermanentModel)],
+                query.update_batch([obj.pk for obj in instances if not isinstance(obj, PermanentModel) and not force],
                                    {field.name: value}, self.using)
 
         # reverse instance collections
@@ -57,7 +57,7 @@ def delete(self):
         # delete instances
         for model, instances in six.iteritems(self.data):
             pk_list = [obj.pk for obj in instances]
-            if issubclass(model, PermanentModel):
+            if issubclass(model, PermanentModel) and not force:
                 query = sql.UpdateQuery(model)
                 query.update_batch(pk_list, {FIELD: time}, self.using)
                 for instance in instances:
@@ -79,7 +79,7 @@ def delete(self):
                 setattr(obj, field.attname, value)
     for model, instances in six.iteritems(self.data):
         for instance in instances:
-            if issubclass(model, PermanentModel):
+            if issubclass(model, PermanentModel) and not force:
                 continue
             setattr(instance, model._meta.pk.attname, None)
 
