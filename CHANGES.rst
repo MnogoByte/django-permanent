@@ -6,6 +6,9 @@ CHANGELOG
 ==================
 
 + Returned force argument
++ Replace commit_on_success_unless_managed by atomic (thanks David Fischer)
++ Find packages recursively (thanks David Fischer)
++ Make setup.py executable (thanks David Fischer)
 
 
 1.0.7 (2015-03-24)
