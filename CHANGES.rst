@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.0.8 (developing)
+1.0.9 (developing)
 ==================
 
 - nothing changed yey
