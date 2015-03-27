@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.0.8 (no released)
+1.0.8 (2015-03-27)
 ==================
 
 + Returned force argument
