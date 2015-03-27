@@ -1,6 +1,8 @@
-import os, sys
-from django.conf import settings
+import os
+import sys
+
 import django
+import django.conf
 
 
 DEFAULT_SETTINGS = dict(
@@ -9,17 +11,17 @@ DEFAULT_SETTINGS = dict(
         'django_permanent.tests.test_app',
     ),
     DATABASES={
-        'default':{
+        'default': {
             'ENGINE': 'django.db.backends.sqlite3'
         }
     },
-    MIDDLEWARE_CLASSES = []
+    MIDDLEWARE_CLASSES=[]
 )
 
 
 def runtests(*test_args):
-    if not settings.configured:
-        settings.configure(**DEFAULT_SETTINGS)
+    if not django.conf.settings.configured:
+        django.conf.settings.configure(**DEFAULT_SETTINGS)
     if hasattr(django, 'setup'):
         django.setup()
     if not test_args:
