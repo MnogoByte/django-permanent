@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='django-permanent',
-      version='1.0.8',
+      version='1.0.9',
       description='Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.',
       author='Alexander Klimenko',
       author_email='alex@erix.ru',
