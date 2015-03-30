@@ -29,8 +29,8 @@ def runtests(*test_args):
 
     parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)
-    from django.test.simple import DjangoTestSuiteRunner
-    failures = DjangoTestSuiteRunner(verbosity=1, interactive=True, failfast=False).run_tests(test_args)
+    from django.test.runner import DiscoverRunner
+    failures = DiscoverRunner(verbosity=1, interactive=True, failfast=False).run_tests(test_args)
     sys.exit(failures)
 
 if __name__ == '__main__':
