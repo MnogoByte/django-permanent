@@ -25,7 +25,7 @@ def runtests(*test_args):
     if hasattr(django, 'setup'):
         django.setup()
     if not test_args:
-        test_args = ['django_permanent']
+        test_args = ['django_permanent.tests']
 
     parent = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, parent)
