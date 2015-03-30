@@ -48,8 +48,10 @@ class TestDelete(TestCase):
 
     def test_double_delete(self):
         self.called = 0
+
         def post_delete_receiver(*args, **kwargs):
             self.called += 1
+
         post_delete.connect(post_delete_receiver, sender=PermanentDepended)
 
         model = PermanentDepended
