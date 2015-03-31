@@ -5,8 +5,8 @@ from django.utils.unittest import skipUnless
 
 from django_permanent.tests.cond import model_utils_installed
 
-from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager, \
-    M2MFrom, M2MTo, PermanentM2MThrough
+from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, \
+    CustomQsPermanent, MyPermanentModelWithManager, M2MFrom, M2MTo, PermanentM2MThrough
 
 
 class TestDelete(TestCase):
