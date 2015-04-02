@@ -12,7 +12,7 @@ class PermanentModel(models.Model):
     objects = QuerySetManager(NonDeletedQuerySet)
     deleted_objects = QuerySetManager(DeletedQuerySet)
     all_objects = QuerySetManager(PermanentQuerySet)
-    _default_manager = QuerySetManager(NonDeletedQuerySet)
+    _base_manager = QuerySetManager(NonDeletedQuerySet)
 
     class Meta:
         abstract = True
