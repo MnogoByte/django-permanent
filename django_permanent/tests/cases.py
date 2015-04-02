@@ -1,3 +1,4 @@
+import django
 from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
@@ -127,6 +128,7 @@ class TestIntegration(TestCase):
         self.assertSequenceEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
         self.assertEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
 
+    @skipUnless(django.VERSION < (1, 8, 0), "Missing django-model-utils")
     def test_m2m_select_related(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
