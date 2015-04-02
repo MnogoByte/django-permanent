@@ -95,9 +95,10 @@ class PermanentQuerySet(QuerySet):
 
         if django.VERSION < (1, 7, 0):
             is_patched = isinstance(condition, tuple) and condition[0].col == settings.FIELD
-        else:
+        elif django.VERSION < (1, 8, 0):
             is_patched = hasattr(condition, 'lhs') and condition.lhs.source.name == settings.FIELD
-
+        else:
+            is_patched = hasattr(condition, 'lhs') and condition.lhs.target.name == settings.FIELD
         if is_patched:
             del self.query.where.children[0]
 
