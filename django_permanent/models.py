@@ -3,6 +3,7 @@ from django.utils.module_loading import import_by_path
 
 from django_permanent import settings
 from .deletion import *
+from .related import *
 from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 from .managers import QuerySetManager
 
