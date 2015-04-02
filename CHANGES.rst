@@ -2,10 +2,12 @@
 CHANGELOG
 =========
 
-1.0.9 (developing)
+1.0.9 (2015-04-02)
 ==================
 
-+ Transaction handling backward compatibility
++ Transaction handling backward compatibility #21
+* replaced create_many_related_manager patching with get_extra_restriction patch
+- fixed removable m2m through #22
 
 
 1.0.8 (2015-03-27)
