@@ -3,9 +3,9 @@ from functools import partial
 from django.db.models.query import QuerySet, ValuesQuerySet
 from django.db.models.query_utils import Q
 from django.db.models.deletion import Collector
+import django
 
 from django_permanent import settings
-from django import VERSION as DJANGO_VERSION
 
 
 class PermanentQuerySet(QuerySet):
@@ -93,10 +93,10 @@ class PermanentQuerySet(QuerySet):
             return
         condition = self.query.where.children[0]
 
-        if DJANGO_VERSION > (1, 7, -1):  # 1.7 changes query building mechanism
-            is_patched = hasattr(condition, 'lhs') and condition.lhs.source.name == settings.FIELD
-        else:
+        if django.VERSION < (1, 7, 0):
             is_patched = isinstance(condition, tuple) and condition[0].col == settings.FIELD
+        else:
+            is_patched = hasattr(condition, 'lhs') and condition.lhs.source.name == settings.FIELD
 
         if is_patched:
             del self.query.where.children[0]
