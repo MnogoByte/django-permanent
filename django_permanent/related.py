@@ -19,7 +19,11 @@ def get_extra_restriction_patch(func):
                     lookup = Constraint(lhs, alias, field), 'exact', None
 
             else:
-                from django.db.models.sql.datastructures import Col
+                if django.VERSION < (1, 8, 0):
+                    from django.db.models.sql.datastructures import Col
+                else:
+                    from django.db.models.expressions import Col
+
                 if settings.FIELD_DEFAULT is None:
                     lookup = field.get_lookup('isnull')(Col(lhs, field, field), True)
                 else:
