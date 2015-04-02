@@ -3,7 +3,7 @@ Django Permanent
 
 Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.
 
-.. image:: https://api.travis-ci.org/meteozond/django-permanent.svg
+.. image:: https://api.travis-ci.org/meteozond/django-permanent.svg?branch=django1.8
 
 Models
 ================
