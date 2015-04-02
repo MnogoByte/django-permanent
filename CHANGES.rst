@@ -5,7 +5,7 @@ CHANGELOG
 1.0.9 (developing)
 ==================
 
-- nothing changed yet
++ Transaction handling backward compatibility
 
 
 1.0.8 (2015-03-27)
