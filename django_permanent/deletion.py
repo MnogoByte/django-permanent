@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import partial
 from operator import attrgetter
 
 from django.db import transaction
@@ -6,6 +7,7 @@ from django.db.models import signals, sql
 from django.db.models.deletion import Collector
 from django.utils import six
 from django.utils.timezone import now
+from django import VERSION as DJANGO_VERSION
 
 from .settings import FIELD
 
@@ -26,7 +28,12 @@ def delete(self, force=False):
     # end of a transaction.
     self.sort()
 
-    with transaction.atomic(using=self.using, savepoint=False):
+    if DJANGO_VERSION < (1, 8, 0):
+        transaction_handling = partial(transaction.commit_on_success_unless_managed, using=self.using)
+    else:
+        transaction_handling = partial(transaction.atomic, using=self.using, savepoint=False)
+
+    with transaction_handling():
         # send pre_delete signals
         for model, obj in self.instances_with_model():
             if not model._meta.auto_created:

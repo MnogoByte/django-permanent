@@ -5,8 +5,8 @@ from django.utils.unittest import skipUnless
 
 from django_permanent.tests.cond import model_utils_installed
 
-from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, CustomQsPermanent, MyPermanentModelWithManager, \
-    M2MFrom, M2MTo, PermanentM2MThrough
+from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, \
+    CustomQsPermanent, MyPermanentModelWithManager, M2MFrom, M2MTo, PermanentM2MThrough
 
 
 class TestDelete(TestCase):
@@ -48,8 +48,10 @@ class TestDelete(TestCase):
 
     def test_double_delete(self):
         self.called = 0
+
         def post_delete_receiver(*args, **kwargs):
             self.called += 1
+
         post_delete.connect(post_delete_receiver, sender=PermanentDepended)
 
         model = PermanentDepended
@@ -138,6 +140,12 @@ class TestIntegration(TestCase):
         depended = NonRemovableDepended.objects.create(dependence=dependence, removed=now())
         depended = NonRemovableDepended.all_objects.get(pk=depended.pk)
         self.assertEqual(depended.dependence, dependence)
+
+    def test_m2m_deleted_through(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
+        self.assertEqual(M2MFrom.objects.filter(m2mto__id=_to.pk).count(), 0)
 
 
 class TestPassThroughManager(TestCase):
