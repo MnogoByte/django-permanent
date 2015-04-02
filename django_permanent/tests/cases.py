@@ -141,6 +141,12 @@ class TestIntegration(TestCase):
         depended = NonRemovableDepended.all_objects.get(pk=depended.pk)
         self.assertEqual(depended.dependence, dependence)
 
+    def test_m2m_deleted_through(self):
+        _from = M2MFrom.objects.create()
+        _to = M2MTo.objects.create()
+        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
+        self.assertEqual(M2MFrom.objects.filter(m2mto__id=_to.pk).count(), 0)
+
 
 class TestPassThroughManager(TestCase):
     @skipUnless(model_utils_installed, "Missing django-model-utils")
