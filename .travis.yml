@@ -18,7 +18,7 @@ install:
   - pip install coverage
   - pip install flake8
 before_script:
-  - flake8 --ignore=E501 django_permanent model_utils
+  - flake8 --ignore=E501 django_permanent
 script:
   - python setup.py test
   - coverage run runtests.py django_permanent
