@@ -2,7 +2,7 @@
 CHANGELOG
 =========
 
-1.0.10 (developing)
+1.0.10 (2015-04-03)
 ==================
 
 - Skip test_m2m_select_related test on Django 1.8 #27
