@@ -11,8 +11,8 @@ class BaseTestModel(Model):
     class Meta():
         abstract = True
 
-    def __unicode__(self):
-        return unicode(self.pk)
+    def __str__(self):
+        return str(self.pk)
 
 
 class MyPermanentModel(BaseTestModel, PermanentModel):
