@@ -2,8 +2,8 @@ from django.db import models, router
 from django.utils.module_loading import import_by_path
 
 from django_permanent import settings
-from .deletion import *
-from .related import *
+from .deletion import *  # NOQA
+from .related import *  # NOQA
 from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 from .managers import QuerySetManager
 

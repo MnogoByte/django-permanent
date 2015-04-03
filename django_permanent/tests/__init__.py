@@ -1,1 +1,1 @@
-from .cases import *
+from .cases import *   # NOQA

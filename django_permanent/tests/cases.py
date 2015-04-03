@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.utils.timezone import now
 from django.utils.unittest import skipUnless
 
-from django_permanent.tests.cond import model_utils_installed
+from django_permanent.tests.cond import model_utils
 
 from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, \
     CustomQsPermanent, MyPermanentModelWithManager, M2MFrom, M2MTo, PermanentM2MThrough
@@ -151,7 +151,7 @@ class TestIntegration(TestCase):
 
 
 class TestPassThroughManager(TestCase):
-    @skipUnless(model_utils_installed, "Missing django-model-utils")
+    @skipUnless(model_utils, "Missing django-model-utils")
     def test_pass_through_manager(self):
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'test'))
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'restore'))

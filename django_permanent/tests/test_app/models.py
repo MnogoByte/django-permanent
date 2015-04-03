@@ -3,7 +3,7 @@ from django.db.models import Model
 from django_permanent.models import PermanentModel
 from django_permanent.managers import MultiPassThroughManager
 from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
-from django_permanent.tests.cond import model_utils_installed
+from django_permanent.tests.cond import model_utils
 
 
 class BaseTestModel(Model):
@@ -11,8 +11,8 @@ class BaseTestModel(Model):
     class Meta():
         abstract = True
 
-    def __unicode__(self):
-        return unicode(self.pk)
+    def __str__(self):
+        return str(self.pk)
 
 
 class MyPermanentModel(BaseTestModel, PermanentModel):
@@ -58,7 +58,7 @@ class MyPermanentModelWithManager(BaseTestModel, PermanentModel):
     any_objects = MultiPassThroughManager(MyPermanentQuerySet, PermanentQuerySet)
 
 
-if model_utils_installed:
+if model_utils:
 
     class TestQS(object):
         def test(self):
