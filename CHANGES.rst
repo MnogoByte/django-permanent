@@ -5,10 +5,11 @@ CHANGELOG
 1.0.10 (developing)
 ==================
 
-+ Django 1.8 support
 - Skip test_m2m_select_related test on Django 1.8 #27
-+ ReverseSingleRelatedObjectDescriptor patch Bug #25
 - Manager isn't available; PermanentModel is abstract #24
+- Atomic only for django >= 1.8 #21
++ Django 1.8 support
++ ReverseSingleRelatedObjectDescriptor patch Bug #25
 + Do not try to restore deleted object if it is created already deleted #23
 
 
