@@ -10,8 +10,9 @@ from django_permanent import settings
 
 class PermanentQuerySet(QuerySet):
     def create(self, **kwargs):
-        if self.model.Permanent.restore_on_create:
-            return self.get_restore_or_create(**kwargs)
+        if self.model.Permanent.restore_on_create and not kwargs.get(settings.FIELD):
+            qs = self.get_unpatched()
+            return qs.get_restore_or_create(**kwargs)
         return super(PermanentQuerySet, self).create(**kwargs)
 
     def get_restore_or_create(self, **kwargs):
