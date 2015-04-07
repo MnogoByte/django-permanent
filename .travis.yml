@@ -17,7 +17,7 @@ matrix:
     - python: "2.6"
       env: DJANGO_VERSION=https://github.com/django/django/archive/master.zip
 install:
-  - pip install -q Django==$DJANGO_VERSION
+  - pip install -q $DJANGO_VERSION
   - pip install -q django-model-utils
   - pip install -q coverage
   - pip install -q flake8
