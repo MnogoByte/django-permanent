@@ -4,18 +4,18 @@ python:
   - "2.7"
   - "3.4"
 env:
-  - DJANGO_VERSION=Django==1.6.11
-  - DJANGO_VERSION=Django==1.7.7
-  - DJANGO_VERSION=Django==1.8
+  - DJANGO_VERSION=1.6.11
+  - DJANGO_VERSION=1.7.7
+  - DJANGO_VERSION=1.8
 matrix:
   exclude:
     - python: "2.6"
-      env: DJANGO_VERSION=Django==1.7.7
+      env: DJANGO_VERSION=1.7.7
     - python: "2.6"
-      env: DJANGO_VERSION=Django==1.8
+      env: DJANGO_VERSION=1.8
 install:
   - pip install -q --upgrade pip
-  - pip install -q $DJANGO_VERSION
+  - pip install -q django==$DJANGO_VERSION
   - pip install -q django-model-utils
   - pip install -q coverage
   - pip install -q flake8
