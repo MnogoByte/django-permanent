@@ -1,3 +1,4 @@
+import copy
 from functools import partial
 
 from django.db.models.query import QuerySet, ValuesQuerySet
@@ -9,6 +10,15 @@ from django_permanent import settings
 
 
 class PermanentQuerySet(QuerySet):
+    def __deepcopy__(self, memo):
+        obj = self.__class__(model=self.model)
+        for k, v in self.__dict__.items():
+            if k == '_result_cache':
+                obj.__dict__[k] = None
+            else:
+                obj.__dict__[k] = copy.deepcopy(v, memo)
+        return obj
+
     def create(self, **kwargs):
         if self.model.Permanent.restore_on_create and not kwargs.get(settings.FIELD):
             qs = self.get_unpatched()

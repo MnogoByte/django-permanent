@@ -5,7 +5,7 @@ CHANGELOG
 1.0.11 (developing)
 ==================
 
-- nothing changed yet
+- Fixed deepcopy()-ing PermanentQuerySet
 
 
 1.0.10 (2015-04-03)
