@@ -47,6 +47,11 @@ class TestDelete(TestCase):
         self.assertTrue(new_permanent.removed)
         self.assertEqual(new_depended.dependence_id, self.permanent.id)
 
+    def test_related(self):
+        p = PermanentDepended.objects.create(dependence=self.permanent)
+        self.permanent.delete()
+        self.assertEqual(list(PermanentDepended.all_objects.select_related('dependence').all()), [p])
+
     def test_double_delete(self):
         self.called = 0
 
