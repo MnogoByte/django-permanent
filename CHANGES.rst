@@ -2,10 +2,10 @@
 CHANGELOG
 =========
 
-1.0.11 (developing)
+1.0.11 (2015-05-29)
 ==================
 
-- Fixed deepcopy()-ing PermanentQuerySet
+- Fixed deepcopy()-ing PermanentQuerySet #30
 - all_objects.select_related bug #31
 
 
