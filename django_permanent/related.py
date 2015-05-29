@@ -3,6 +3,7 @@ from django.db.models.fields.related import ForeignObject
 from django_permanent import settings
 from django_permanent.query import AllWhereNode, DeletedWhereNode
 
+
 def get_extra_restriction_patch(func):
     def wrapper(self, where_class, alias, lhs):
         cond = func(self, where_class, alias, lhs)
