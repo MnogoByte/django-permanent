@@ -4,12 +4,13 @@ from functools import partial
 from django.db.models.query import QuerySet, ValuesQuerySet
 from django.db.models.query_utils import Q
 from django.db.models.deletion import Collector
+from django.db.models.sql.where import WhereNode
 import django
 
 from django_permanent import settings
 
 
-class PermanentQuerySet(QuerySet):
+class BasePermanentQuerySet(QuerySet):
     def __deepcopy__(self, memo):
         obj = self.__class__(model=self.model)
         for k, v in self.__dict__.items():
@@ -23,7 +24,7 @@ class PermanentQuerySet(QuerySet):
         if self.model.Permanent.restore_on_create and not kwargs.get(settings.FIELD):
             qs = self.get_unpatched()
             return qs.get_restore_or_create(**kwargs)
-        return super(PermanentQuerySet, self).create(**kwargs)
+        return super(BasePermanentQuerySet, self).create(**kwargs)
 
     def get_restore_or_create(self, **kwargs):
         qs = self.get_unpatched()
@@ -80,7 +81,7 @@ class PermanentQuerySet(QuerySet):
         # Modifying trigger field have to effect all objects
         if settings.FIELD in [field.attname for field, _, _ in values] and not getattr(self, '_unpatched', False):
             return self.get_unpatched()._update(values)
-        return super(PermanentQuerySet, self)._update(values)
+        return super(BasePermanentQuerySet, self)._update(values)
 
     def get_unpatched(self):
         qs = self._clone()
@@ -88,7 +89,7 @@ class PermanentQuerySet(QuerySet):
         return qs
 
     def _clone(self, **kwargs):
-        c = super(PermanentQuerySet, self)._clone(**kwargs)
+        c = super(BasePermanentQuerySet, self)._clone(**kwargs)
         # We need clones stay unpatched
         if getattr(self, '_unpatched', False):
             c._unpatched = True
@@ -114,15 +115,31 @@ class PermanentQuerySet(QuerySet):
             del self.query.where.children[0]
 
 
-class NonDeletedQuerySet(PermanentQuerySet):
+class NonDeletedQuerySet(BasePermanentQuerySet):
     def __init__(self, *args, **kwargs):
         super(NonDeletedQuerySet, self).__init__(*args, **kwargs)
         if not self.query.where:
             self._patch(Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
 
 
-class DeletedQuerySet(PermanentQuerySet):
+class DeletedWhereNode(WhereNode):
+    pass
+
+
+class DeletedQuerySet(BasePermanentQuerySet):
     def __init__(self, *args, **kwargs):
         super(DeletedQuerySet, self).__init__(*args, **kwargs)
         if not self.query.where:
+            self.query.where_class = DeletedWhereNode
             self._patch(~Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
+
+
+class AllWhereNode(WhereNode):
+    pass
+
+
+class PermanentQuerySet(BasePermanentQuerySet):
+    def __init__(self, *args, **kwargs):
+        super(PermanentQuerySet, self).__init__(*args, **kwargs)
+        if not self.query.where:
+            self.query.where_class = AllWhereNode

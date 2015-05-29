@@ -6,6 +6,7 @@ CHANGELOG
 ==================
 
 - Fixed deepcopy()-ing PermanentQuerySet
+- all_objects.select_related bug #31
 
 
 1.0.10 (2015-04-03)
