@@ -80,6 +80,18 @@ class TestDelete(TestCase):
         MyPermanentModel.objects.all().delete(force=True)
         self.assertEqual(MyPermanentModel.all_objects.count(), 0)
 
+    def test_save_removed(self):
+        self.permanent.delete()
+        self.permanent.name = 'new name'
+        self.permanent.save()
+        self.assertEqual(MyPermanentModel.all_objects.get(pk=self.permanent.pk).name, 'new name')
+
+    def test_save_removed_update_fields(self):
+        self.permanent.delete()
+        self.permanent.name = 'new name'
+        self.permanent.save(update_fields=['name'])
+        self.assertEqual(MyPermanentModel.all_objects.get(pk=self.permanent.pk).name, 'new name')
+
 
 class TestIntegration(TestCase):
     def test_prefetch_bug(self):
@@ -153,18 +165,6 @@ class TestIntegration(TestCase):
         _to = M2MTo.objects.create()
         PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
         self.assertEqual(M2MFrom.objects.filter(m2mto__id=_to.pk).count(), 0)
-
-    def test_save_removed(self):
-        self.permanent.delete()
-        self.permanent.name = 'new name'
-        self.permanent.save()
-        self.assertEqual(MyPermanentModel.all_objects.get(pk=self.permanent.pk).name, 'new name')
-
-    def test_save_removed_update_fields(self):
-        self.permanent.delete()
-        self.permanent.name = 'new name'
-        self.permanent.save(update_fields=['name'])
-        self.assertEqual(MyPermanentModel.all_objects.get(pk=self.permanent.pk).name, 'new name')
 
 
 class TestPassThroughManager(TestCase):
