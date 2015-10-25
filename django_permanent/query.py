@@ -1,7 +1,7 @@
 import copy
 from functools import partial
 
-from django.db.models.query import QuerySet, ValuesQuerySet
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models.deletion import Collector
 from django.db.models.sql.where import WhereNode
@@ -76,7 +76,7 @@ class BasePermanentQuerySet(QuerySet):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
-        klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
+        klass = type('CustomQuerySet', (self.__class__, QuerySet,), {})
         return self._clone(klass=klass, setup=True, _fields=fields)
 
     # I don't like the bottom code, but most of operations during QuerySet cloning Django do outside of __init___,
