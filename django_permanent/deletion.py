@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import Counter
 from functools import partial
 from operator import attrgetter
 
@@ -27,6 +28,8 @@ def delete(self, force=False):
     # don't support transactions or cannot defer constraint checks until the
     # end of a transaction.
     self.sort()
+    # number of objects deleted for each model label
+    deleted_counter = Counter()
 
     if DJANGO_VERSION < (1, 8, 0):
         transaction_handling = partial(transaction.commit_on_success_unless_managed, using=self.using)
@@ -47,8 +50,10 @@ def delete(self, force=False):
                 pk_list = [obj.pk for obj in qs]
                 qs = sql.UpdateQuery(qs.model)
                 qs.update_batch(pk_list, {FIELD: time}, self.using)
+                count = len(pk_list)
             else:
-                qs._raw_delete(using=self.using)
+                count = qs._raw_delete(using=self.using)
+            deleted_counter[qs.model._meta.label] += count
 
         # update fields
         for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
@@ -69,9 +74,11 @@ def delete(self, force=False):
                 query.update_batch(pk_list, {FIELD: time}, self.using)
                 for instance in instances:
                     setattr(instance, FIELD, time)
+                count = len(pk_list)
             else:
                 query = sql.DeleteQuery(model)
-                query.delete_batch(pk_list, self.using)
+                count = query.delete_batch(pk_list, self.using)
+            deleted_counter[model._meta.label] += count
 
             if not model._meta.auto_created:
                 for obj in instances:
@@ -89,6 +96,8 @@ def delete(self, force=False):
             if issubclass(model, PermanentModel) and not force:
                 continue
             setattr(instance, model._meta.pk.attname, None)
+
+    return sum(deleted_counter.values()), dict(deleted_counter)
 
 
 Collector.delete = delete
