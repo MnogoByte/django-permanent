@@ -19,6 +19,5 @@ def QuerySetManager(qs):
 
 
 def MultiPassThroughManager(*classes):
-    from model_utils.managers import PassThroughManager
     name = "".join([cls.__name__ for cls in classes])
-    return PassThroughManager.for_queryset_class(type(name, classes, {}))()
+    return type(name, classes, {}).as_manager()
