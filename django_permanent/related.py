@@ -1,7 +1,8 @@
 import django
 from django.db.models.fields.related import ForeignObject
-from django_permanent import settings
-from django_permanent.query import AllWhereNode, DeletedWhereNode
+
+from . import settings
+from .query import AllWhereNode, DeletedWhereNode
 
 
 def get_extra_restriction_patch(func):
@@ -19,23 +20,15 @@ def get_extra_restriction_patch(func):
 
         field = self.model._meta.get_field_by_name(settings.FIELD)[0]
 
-        if django.VERSION < (1, 7, 0):
-            from django.db.models.sql.where import Constraint
-            if settings.FIELD_DEFAULT is None:
-                lookup = Constraint(lhs, settings.FIELD, field), 'isnull', True
-            else:
-                lookup = Constraint(lhs, alias, field), 'exact', settings.FIELD_DEFAULT
-
+        if django.VERSION < (1, 8, 0):
+            from django.db.models.sql.datastructures import Col
         else:
-            if django.VERSION < (1, 8, 0):
-                from django.db.models.sql.datastructures import Col
-            else:
-                from django.db.models.expressions import Col
+            from django.db.models.expressions import Col
 
-            if settings.FIELD_DEFAULT is None:
-                lookup = field.get_lookup('isnull')(Col(lhs, field, field), True)
-            else:
-                lookup = field.get_lookup('exact')(Col(lhs, field, field), settings.FIELD_DEFAULT)
+        if settings.FIELD_DEFAULT is None:
+            lookup = field.get_lookup('isnull')(Col(lhs, field, field), True)
+        else:
+            lookup = field.get_lookup('exact')(Col(lhs, field, field), settings.FIELD_DEFAULT)
 
         cond.add(lookup, 'AND')
 
@@ -47,7 +40,10 @@ ForeignObject.get_extra_restriction = get_extra_restriction_patch(ForeignObject.
 
 
 if django.VERSION > (1, 8, -1):
-    from django.db.models.fields.related import ForwardManyToOneDescriptor
+    if django.VERSION > (1, 9):
+        from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor as Descriptor
+    else:
+        from django.db.models.fields.related import ReverseSingleRelatedObjectDescriptor as Descriptor
 
     def get_queryset_patch(func):
         def wrapper(self, **hints):
@@ -58,4 +54,4 @@ if django.VERSION > (1, 8, -1):
             return func(self, **hints)
         return wrapper
 
-    ForwardManyToOneDescriptor.get_queryset = get_queryset_patch(ForwardManyToOneDescriptor.get_queryset)
+    Descriptor.get_queryset = get_queryset_patch(Descriptor.get_queryset)

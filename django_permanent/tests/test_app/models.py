@@ -1,13 +1,12 @@
 from django.db import models
 from django.db.models import Model
-from django_permanent.models import PermanentModel
-from django_permanent.managers import MultiPassThroughManager
-from django_permanent.query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
-from django_permanent.tests.cond import model_utils
+
+from ...models import PermanentModel
+from ...managers import MultiPassThroughManager
+from ...query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
 
 
 class BaseTestModel(Model):
-
     class Meta():
         abstract = True
 
@@ -21,7 +20,7 @@ class MyPermanentModel(BaseTestModel, PermanentModel):
 
 
 class RemovableDepended(BaseTestModel):
-    dependence = models.ForeignKey(MyPermanentModel)
+    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
 
 
 class NonRemovableDepended(BaseTestModel, PermanentModel):
@@ -29,7 +28,7 @@ class NonRemovableDepended(BaseTestModel, PermanentModel):
 
 
 class PermanentDepended(BaseTestModel, PermanentModel):
-    dependence = models.ForeignKey(MyPermanentModel)
+    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
 
 
 class M2MFrom(BaseTestModel):
@@ -37,8 +36,8 @@ class M2MFrom(BaseTestModel):
 
 
 class PermanentM2MThrough(PermanentModel):
-    m2m_from = models.ForeignKey('M2MFrom')
-    m2m_to = models.ForeignKey('M2MTo')
+    m2m_from = models.ForeignKey('M2MFrom', on_delete=models.CASCADE)
+    m2m_to = models.ForeignKey('M2MTo', on_delete=models.CASCADE)
 
 
 class M2MTo(BaseTestModel):
@@ -58,11 +57,10 @@ class MyPermanentModelWithManager(BaseTestModel, PermanentModel):
     any_objects = MultiPassThroughManager(MyPermanentQuerySet, PermanentQuerySet)
 
 
-if model_utils:
+class TestQS(object):
+    def test(self):
+        return "ok"
 
-    class TestQS(object):
-        def test(self):
-            return "ok"
 
-    class CustomQsPermanent(BaseTestModel, PermanentModel):
-        objects = MultiPassThroughManager(TestQS, DeletedQuerySet)
+class CustomQsPermanent(BaseTestModel, PermanentModel):
+    objects = MultiPassThroughManager(TestQS, DeletedQuerySet)

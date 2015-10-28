@@ -1,7 +1,7 @@
 from django.db import models, router
 from django.utils.module_loading import import_string
 
-from django_permanent import settings
+from . import settings
 from .deletion import *  # NOQA
 from .related import *  # NOQA
 from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
@@ -26,7 +26,6 @@ class PermanentModel(models.Model):
         using = using or router.db_for_write(self.__class__, instance=self)
         assert self._get_pk_val() is not None, "%s object can't be deleted because its %s attribute is set to None." \
                                                % (self._meta.object_name, self._meta.pk.attname)
-
         collector = Collector(using=using)
         collector.collect([self])
         collector.delete(force=force)

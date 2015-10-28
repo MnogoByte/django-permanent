@@ -1,13 +1,13 @@
 import copy
 from functools import partial
 
+import django
+from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
-from django.db.models.deletion import Collector
 from django.db.models.sql.where import WhereNode
-import django
 
-from django_permanent import settings
+from . import settings
 
 from .signals import pre_restore, post_restore
 
@@ -48,8 +48,7 @@ class BasePermanentQuerySet(QuerySet):
         """
         Deletes the records in the current QuerySet.
         """
-        assert self.query.can_filter(), \
-            "Cannot use 'limit' or 'offset' with delete."
+        assert self.query.can_filter(), "Cannot use 'limit' or 'offset' with delete."
 
         del_query = self._clone()
 

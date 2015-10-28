@@ -2,7 +2,6 @@ from django.db.models import Manager
 
 
 def QuerySetManager(qs):
-
     class QuerySetManager(Manager):
         qs_class = qs
 
@@ -14,7 +13,6 @@ def QuerySetManager(qs):
 
         def restore(self, *args, **kwargs):
             return self.get_queryset().restore(*args, **kwargs)
-
     return QuerySetManager()
 
 
