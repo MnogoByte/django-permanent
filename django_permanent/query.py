@@ -75,13 +75,6 @@ class BasePermanentQuerySet(QuerySet):
     def restore(self):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
-    def values(self, *fields):
-        klass = type('CustomQuerySet', (self.__class__, QuerySet,), {})
-        return self._clone(klass=klass, setup=True, _fields=fields)
-
-    # I don't like the bottom code, but most of operations during QuerySet cloning Django do outside of __init___,
-    # so I couldn't find a proper solution to provide transparency of restoration. If you does mail me please.
-
     def _update(self, values):
         # Modifying trigger field have to effect all objects
         if settings.FIELD in [field.attname for field, _, _ in values] and not getattr(self, '_unpatched', False):
