@@ -25,6 +25,6 @@ setup(name='django-permanent',
             "Development Status :: 4 - Beta",
             "License :: OSI Approved :: BSD License",
       ],
-      tests_require=["Django>=1.7.0", "django-model-utils"],
+      tests_require=["Django>=1.7.0"],
       test_suite='runtests.runtests',
       license="BSD")
