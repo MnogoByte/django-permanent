@@ -40,7 +40,7 @@ ForeignObject.get_extra_restriction = get_extra_restriction_patch(ForeignObject.
 
 
 if django.VERSION > (1, 8, -1):
-    if django.VERSION > (1, 9):
+    if django.VERSION > (1, 9, 0):
         from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor as Descriptor
     else:
         from django.db.models.fields.related import ReverseSingleRelatedObjectDescriptor as Descriptor

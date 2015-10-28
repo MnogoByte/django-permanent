@@ -8,7 +8,6 @@ import django.conf
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
         'django_permanent',
-        # 'django_permanent.tests.test_app',
     ),
     DATABASES={
         'default': {

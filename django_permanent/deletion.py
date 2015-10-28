@@ -53,7 +53,8 @@ def delete(self, force=False):
                 count = len(pk_list)
             else:
                 count = qs._raw_delete(using=self.using)
-            deleted_counter[qs.model._meta.label] += count
+            if DJANGO_VERSION >= (1, 9, 0):
+                deleted_counter[qs.model._meta.label] += count
 
         # update fields
         for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
@@ -78,7 +79,8 @@ def delete(self, force=False):
             else:
                 query = sql.DeleteQuery(model)
                 count = query.delete_batch(pk_list, self.using)
-            deleted_counter[model._meta.label] += count
+            if DJANGO_VERSION >= (1, 9, 0):
+                deleted_counter[model._meta.label] += count
 
             if not model._meta.auto_created:
                 for obj in instances:
@@ -97,7 +99,8 @@ def delete(self, force=False):
                 continue
             setattr(instance, model._meta.pk.attname, None)
 
-    return sum(deleted_counter.values()), dict(deleted_counter)
+    if DJANGO_VERSION >= (1, 9, 0):
+        return sum(deleted_counter.values()), dict(deleted_counter)
 
 
 Collector.delete = delete
