@@ -80,6 +80,18 @@ class TestDelete(TestCase):
         MyPermanentModel.objects.all().delete(force=True)
         self.assertEqual(MyPermanentModel.all_objects.count(), 0)
 
+    def test_save_removed(self):
+        self.permanent.delete()
+        self.permanent.name = 'new name'
+        self.permanent.save()
+        self.assertEqual(MyPermanentModel.all_objects.get(pk=self.permanent.pk).name, 'new name')
+
+    def test_save_removed_update_fields(self):
+        self.permanent.delete()
+        self.permanent.name = 'new name'
+        self.permanent.save(update_fields=['name'])
+        self.assertEqual(MyPermanentModel.all_objects.get(pk=self.permanent.pk).name, 'new name')
+
 
 class TestIntegration(TestCase):
     def test_prefetch_bug(self):
