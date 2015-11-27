@@ -9,6 +9,8 @@ import django
 
 from django_permanent import settings
 
+from .signals import pre_restore, post_restore
+
 
 class BasePermanentQuerySet(QuerySet):
     def __deepcopy__(self, memo):
@@ -35,8 +37,11 @@ class BasePermanentQuerySet(QuerySet):
             geter, seter = partial(getattr, obj), partial(setattr, obj)
 
         if not created and geter(settings.FIELD, True):
+            pre_restore.send(sender=self.model, instance=obj)
             seter(settings.FIELD, settings.FIELD_DEFAULT)
             self.model.all_objects.filter(id=geter('id')).update(**{settings.FIELD: settings.FIELD_DEFAULT})
+            post_restore.send(sender=self.model, instance=obj)
+
         return obj
 
     def delete(self, force=False):

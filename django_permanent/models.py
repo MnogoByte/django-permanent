@@ -7,6 +7,8 @@ from .related import *  # NOQA
 from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 from .managers import QuerySetManager
 
+from .signals import pre_restore, post_restore
+
 
 class PermanentModel(models.Model):
     objects = QuerySetManager(NonDeletedQuerySet)
@@ -32,8 +34,10 @@ class PermanentModel(models.Model):
     delete.alters_data = True
 
     def restore(self):
+        pre_restore.send(sender=self.__class__, instance=self)
         setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
         self.save(update_fields=[settings.FIELD])
+        post_restore.send(sender=self.__class__, instance=self)
 
 
 field = import_by_path(settings.FIELD_CLASS)

@@ -5,6 +5,7 @@ from django.utils.timezone import now
 from django.utils.unittest import skipUnless
 
 from django_permanent.tests.cond import model_utils
+from django_permanent.signals import pre_restore, post_restore
 
 from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, \
     CustomQsPermanent, MyPermanentModelWithManager, M2MFrom, M2MTo, PermanentM2MThrough
@@ -67,10 +68,28 @@ class TestDelete(TestCase):
         self.assertEqual(self.called, 1)
 
     def test_restore(self):
+        self.called_pre = 0
+        self.called_post = 0
+
+        def pre_restore_receiver(sender, instance, **kwargs):
+            self.called_pre += 1
+
+        def post_restore_receiver(sender, instance, **kwargs):
+            self.called_post += 1
+
+        pre_restore.connect(pre_restore_receiver)
+        post_restore.connect(post_restore_receiver)
+
         self.permanent.delete()
         self.permanent.restore()
         self.assertFalse(self.permanent.removed)
         self.assertEqual(list(MyPermanentModel.objects.all()), [self.permanent])
+
+        pre_restore.disconnect(pre_restore_receiver)
+        post_restore.disconnect(post_restore_receiver)
+
+        self.assertEqual(self.called_pre, 1)
+        self.assertEqual(self.called_post, 1)
 
     def test_forced_model_delete(self):
         self.permanent.delete(force=True)
@@ -169,10 +188,28 @@ class TestCustomQSMethods(TestCase):
         self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
 
     def test__get_restore_or_create__restore(self):
+        self.called_pre = 0
+        self.called_post = 0
+
+        def pre_restore_receiver(sender, instance, **kwargs):
+            self.called_pre += 1
+
+        def post_restore_receiver(sender, instance, **kwargs):
+            self.called_post += 1
+
+        pre_restore.connect(pre_restore_receiver)
+        post_restore.connect(post_restore_receiver)
+
         obj = MyPermanentModel.objects.create(name="old", removed=now())
         self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, obj.id)
         self.assertEqual(MyPermanentModel.objects.count(), 1)
         self.assertEqual(MyPermanentModel.all_objects.count(), 1)
+
+        pre_restore.disconnect(pre_restore_receiver)
+        post_restore.disconnect(post_restore_receiver)
+
+        self.assertEqual(self.called_pre, 1)
+        self.assertEqual(self.called_post, 1)
 
     def test__get_restore_or_create__create(self):
         MyPermanentModel.objects.get_restore_or_create(name="old")
