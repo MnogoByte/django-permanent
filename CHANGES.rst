@@ -2,7 +2,13 @@
 CHANGELOG
 =========
 
-1.0.12 (2015-11-27
+1.0.13 (development)
+====================
+
+- nothing changed yet
+
+
+1.0.12 (2015-11-27)
 ====================
 
 - added pre_restore, post_restore signals thanks atin65536
