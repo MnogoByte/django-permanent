@@ -2,10 +2,10 @@
 CHANGELOG
 =========
 
-1.0.12 (development)
+1.0.12 (2015-11-27
 ====================
 
-- nothing changed yet
+- added pre_restore, post_restore signals thanks atin65536
 
 
 1.0.11 (2015-05-29)
