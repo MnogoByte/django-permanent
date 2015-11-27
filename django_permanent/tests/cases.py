@@ -224,7 +224,6 @@ class TestCustomQSMethods(TestCase):
         self.assertEqual(self.called_pre, 1)
         self.assertEqual(self.called_post, 1)
 
-
     def test__get_restore_or_create__create(self):
         MyPermanentModel.objects.get_restore_or_create(name="old")
         self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
