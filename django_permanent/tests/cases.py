@@ -2,7 +2,7 @@ import django
 from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
-from unittest import skipUnless, skip
+from django.utils.unittest import skipUnless, skip
 
 from django_permanent.tests.cond import model_utils
 from django_permanent.signals import pre_restore, post_restore
