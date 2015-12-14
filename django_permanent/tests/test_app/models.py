@@ -65,4 +65,4 @@ if model_utils:
             return "ok"
 
     class CustomQsPermanent(BaseTestModel, PermanentModel):
-        objects = MultiPassThroughManager(TestQS, DeletedQuerySet)
+        objects = MultiPassThroughManager(DeletedQuerySet, TestQS)
