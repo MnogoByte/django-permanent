@@ -1,7 +1,7 @@
 import copy
 from functools import partial
 
-from django.db.models.query import QuerySet, ValuesQuerySet
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models.deletion import Collector
 from django.db.models.sql.where import WhereNode
@@ -75,10 +75,6 @@ class BasePermanentQuerySet(QuerySet):
     def restore(self):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
-    def values(self, *fields):
-        klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
-        return self._clone(klass=klass, setup=True, _fields=fields)
-
     # I don't like the bottom code, but most of operations during QuerySet cloning Django do outside of __init___,
     # so I couldn't find a proper solution to provide transparency of restoration. If you does mail me please.
 
@@ -118,6 +114,21 @@ class BasePermanentQuerySet(QuerySet):
             is_patched = hasattr(condition, 'lhs') and condition.lhs.target.name == settings.FIELD
         if is_patched:
             del self.query.where.children[0]
+
+
+try:
+    # backward compat for Django < 1.9
+    from django.db.models.query import ValuesQuerySet
+
+    def values(self, *fields):
+        klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
+        return self._clone(klass=klass, setup=True, _fields=fields)
+
+    BasePermanentQuerySet.values = values
+
+except ImportError:
+    # Ignore for Django +1.9
+    pass
 
 
 class NonDeletedQuerySet(BasePermanentQuerySet):
