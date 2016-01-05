@@ -1,13 +1,11 @@
 from unittest import skipUnless
 
 from django_permanent.signals import post_restore, pre_restore
-from django_permanent.tests.cond import model_utils
 
 import django
 from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
-from django.utils.unittest import skipUnless
 
 from .test_app.models import (
     CustomQsPermanent,
