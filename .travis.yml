@@ -1,21 +1,28 @@
 language: python
+sudo: false
+
 python:
   - "2.7"
   - "3.4"
+
 env:
-  - DJANGO_VERSION=1.7.7
-  - DJANGO_VERSION=1.8
-  - DJANGO_VERSION=1.9b1
+  - DJANGO_VERSION="django>=1.7,<1.8"
+  - DJANGO_VERSION="django>=1.8,<1.9"
+  - DJANGO_VERSION="django>=1.9,<1.10"
+
 install:
   - pip install -q --upgrade pip
-  - pip install -q django==$DJANGO_VERSION
+  - pip install -q $DJANGO_VERSION
   - pip install -q coverage
   - pip install -q flake8
+
 before_script:
   - flake8 --ignore=E501 django_permanent
+
 script:
   - python setup.py test
   - coverage run runtests.py django_permanent
+
 after_success:
  - pip install coveralls
  - coveralls
