@@ -63,8 +63,9 @@ It changes default model manager to ignore deleted objects. And adds deleted_obj
 
 QuerySet
 ================
+
 Query set delete method will act as the default django delete, with the one exception - all related  PermanentModel children will be marked as deleted, the usual models will be deleted physically::
-        
+
     >>> MyModel.objects.all().delete()
 
 You can still force django query set physical deletion::
@@ -103,4 +104,5 @@ By default field is named removed, but you can override it by PERMANENT_FIELD va
 Requirements
 ============
 
-Django min 1.6.x required. To cover Django 1.5 needs use 0.1.4 branch.
+Django 1.7+
+Python 2.7, 3.4+
