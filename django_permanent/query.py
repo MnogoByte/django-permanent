@@ -1,7 +1,7 @@
 import copy
 from functools import partial
 
-from django.db.models.query import QuerySet, ValuesQuerySet
+from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
 from django.db.models.deletion import Collector
 from django.db.models.sql.where import WhereNode
@@ -22,10 +22,16 @@ class BasePermanentQuerySet(QuerySet):
                 obj.__dict__[k] = copy.deepcopy(v, memo)
         return obj
 
+    def __init__(self, *args, **kwargs):
+        super(BasePermanentQuerySet, self).__init__(*args, **kwargs)
+
+        self._unpatched = False
+
     def create(self, **kwargs):
-        if self.model.Permanent.restore_on_create and not kwargs.get(settings.FIELD):
-            qs = self.get_unpatched()
-            return qs.get_restore_or_create(**kwargs)
+        if not self._unpatched:
+            if self.model.Permanent.restore_on_create and not kwargs.get(settings.FIELD):
+                qs = self.get_unpatched()
+                return qs.get_restore_or_create(**kwargs)
         return super(BasePermanentQuerySet, self).create(**kwargs)
 
     def get_restore_or_create(self, **kwargs):
@@ -65,19 +71,21 @@ class BasePermanentQuerySet(QuerySet):
 
         collector = Collector(using=del_query.db)
         collector.collect(del_query)
-        collector.delete(force=force)
+        deleted, _rows_count = collector.delete(force=force)
 
         # Clear the result cache, in case this QuerySet gets reused.
         self._result_cache = None
+        return deleted, _rows_count
+
     delete.alters_data = True
-    delete.queryset_only = True
+    #delete.queryset_only = True
 
     def restore(self):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
-    def values(self, *fields):
-        klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
-        return self._clone(klass=klass, setup=True, _fields=fields)
+    #def values(self, *fields):
+    #    klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
+    #    return self._clone(klass=klass, setup=True, _fields=fields)
 
     # I don't like the bottom code, but most of operations during QuerySet cloning Django do outside of __init___,
     # so I couldn't find a proper solution to provide transparency of restoration. If you does mail me please.

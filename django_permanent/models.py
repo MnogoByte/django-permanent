@@ -1,5 +1,11 @@
+import django
 from django.db import models, router
-from django.utils.module_loading import import_by_path
+
+if django.VERSION < (1,9):
+    from django.utils.module_loading import import_by_path
+else:
+    from django.utils.module_loading import import_string as import_by_path
+
 
 from django_permanent import settings
 from .deletion import *  # NOQA

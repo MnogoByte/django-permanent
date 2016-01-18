@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import Counter
 from functools import partial
 from operator import attrgetter
 
@@ -18,6 +19,7 @@ def delete(self, force=False):
     """
     from .models import PermanentModel
     time = now()
+    deleted_counter = Counter()
 
     # sort instance collections
     for model, instances in self.data.items():
@@ -48,7 +50,8 @@ def delete(self, force=False):
                 qs = sql.UpdateQuery(qs.model)
                 qs.update_batch(pk_list, {FIELD: time}, self.using)
             else:
-                qs._raw_delete(using=self.using)
+                count = qs._raw_delete(using=self.using)
+                deleted_counter[qs.model._meta.label] += count
 
         # update fields
         for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
@@ -71,7 +74,8 @@ def delete(self, force=False):
                     setattr(instance, FIELD, time)
             else:
                 query = sql.DeleteQuery(model)
-                query.delete_batch(pk_list, self.using)
+                count = query.delete_batch(pk_list, self.using)
+                deleted_counter[model._meta.label] += count
 
             if not model._meta.auto_created:
                 for obj in instances:
@@ -89,6 +93,8 @@ def delete(self, force=False):
             if issubclass(model, PermanentModel) and not force:
                 continue
             setattr(instance, model._meta.pk.attname, None)
+
+    return sum(deleted_counter.values()), dict(deleted_counter)
 
 
 Collector.delete = delete

@@ -17,7 +17,7 @@ def get_extra_restriction_patch(func):
         else:
             cond = cond or where_class()
 
-        field = self.model._meta.get_field_by_name(settings.FIELD)[0]
+        field = self.model._meta.get_field(settings.FIELD)
 
         if django.VERSION < (1, 7, 0):
             from django.db.models.sql.where import Constraint
@@ -46,8 +46,11 @@ def get_extra_restriction_patch(func):
 ForeignObject.get_extra_restriction = get_extra_restriction_patch(ForeignObject.get_extra_restriction)
 
 
-if django.VERSION > (1, 8, -1):
-    from django.db.models.fields.related import ReverseSingleRelatedObjectDescriptor
+if django.VERSION > (1, 9):
+    from django.db.models.fields.related_descriptors import ReverseOneToOneDescriptor
+elif django.VERSION > (1, 8, -1):
+    from django.db.models.fields.related import ReverseSingleRelatedObjectDescriptor as ReverseOneToOneDescriptor
+
 
     def get_queryset_patch(func):
         def wrapper(self, **hints):
@@ -58,4 +61,4 @@ if django.VERSION > (1, 8, -1):
             return func(self, **hints)
         return wrapper
 
-    ReverseSingleRelatedObjectDescriptor.get_queryset = get_queryset_patch(ReverseSingleRelatedObjectDescriptor.get_queryset)
+    ReverseOneToOneDescriptor.get_queryset = get_queryset_patch(ReverseOneToOneDescriptor.get_queryset)
