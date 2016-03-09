@@ -8,7 +8,7 @@ Yet another approach to provide soft (logical) delete or masking (thrashing) dja
 Models
 ================
 
-To create a non-deletable model just inherit it form the ``PermanentModel``::
+To create a non-deletable model just inherit it from ``PermanentModel``::
 
     class MyModel(PermanentModel):
         pass
