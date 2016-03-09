@@ -18,11 +18,11 @@ def get_extra_restriction_patch(func):
         else:
             cond = cond or where_class()
 
-        field = self.model._meta.get_field_by_name(settings.FIELD)[0]
-
         if django.VERSION < (1, 8, 0):
+            field = self.model._meta.get_field_by_name(settings.FIELD)[0]
             from django.db.models.sql.datastructures import Col
         else:
+            field = self.model._meta.get_field(settings.FIELD)
             from django.db.models.expressions import Col
 
         if settings.FIELD_DEFAULT is None:
@@ -50,7 +50,10 @@ if django.VERSION > (1, 8, -1):
             from .models import PermanentModel
             instance = hints.get('instance')
             if instance and isinstance(instance, PermanentModel) and getattr(instance, settings.FIELD):
-                return self.field.rel.to.all_objects
+                if django.VERSION < (1, 9, 0):
+                    return self.field.rel.to.all_objects
+                else:
+                    return self.field.remote_field.model.all_objects
             return func(self, **hints)
         return wrapper
 
