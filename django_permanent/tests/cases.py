@@ -1,14 +1,23 @@
+from unittest import skipUnless
+
+from django_permanent.signals import post_restore, pre_restore
+
 import django
 from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
-from django.utils.unittest import skipUnless
 
-from django_permanent.tests.cond import model_utils
-from django_permanent.signals import pre_restore, post_restore
-
-from .test_app.models import MyPermanentModel, RemovableDepended, NonRemovableDepended, PermanentDepended, \
-    CustomQsPermanent, MyPermanentModelWithManager, M2MFrom, M2MTo, PermanentM2MThrough
+from .test_app.models import (
+    CustomQsPermanent,
+    M2MFrom,
+    M2MTo,
+    MyPermanentModel,
+    MyPermanentModelWithManager,
+    NonRemovableDepended,
+    PermanentDepended,
+    PermanentM2MThrough,
+    RemovableDepended
+)
 
 
 class TestDelete(TestCase):
@@ -152,7 +161,7 @@ class TestIntegration(TestCase):
         self.assertSequenceEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
         self.assertEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
 
-    @skipUnless(django.VERSION < (1, 8, 0), "Missing django-model-utils")
+    @skipUnless(django.VERSION < (1, 8, 0), "Missing m2m")
     def test_m2m_select_related(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
@@ -175,7 +184,6 @@ class TestIntegration(TestCase):
 
 
 class TestPassThroughManager(TestCase):
-    @skipUnless(model_utils, "Missing django-model-utils")
     def test_pass_through_manager(self):
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'test'))
         self.assertTrue(hasattr(CustomQsPermanent.objects, 'restore'))
