@@ -1,4 +1,5 @@
 env
+ENV
 dist
 MANIFEST
 *.pyc

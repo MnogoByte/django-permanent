@@ -1,8 +1,8 @@
+import django
 from django.db.models import Manager
 
 
 def QuerySetManager(qs):
-
     class QuerySetManager(Manager):
         qs_class = qs
 
@@ -14,11 +14,13 @@ def QuerySetManager(qs):
 
         def restore(self, *args, **kwargs):
             return self.get_queryset().restore(*args, **kwargs)
-
     return QuerySetManager()
 
 
 def MultiPassThroughManager(*classes):
-    from model_utils.managers import PassThroughManager
     name = "".join([cls.__name__ for cls in classes])
-    return PassThroughManager.for_queryset_class(type(name, classes, {}))()
+    if django.VERSION < (1, 7, 0):
+        from model_utils.managers import PassThroughManager
+        return PassThroughManager.for_queryset_class(type(name, classes, {}))()
+    else:
+        return type(name, classes, {}).as_manager()

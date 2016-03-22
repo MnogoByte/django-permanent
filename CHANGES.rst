@@ -2,10 +2,23 @@
 CHANGELOG
 =========
 
-1.0.12 (development)
+1.1.0 (development)
 ====================
 
-- nothing changed yet
++ Django 1.9 support
++ QuerySetManager support
++ Python 3.5 support
+* Fixed latest supported model_utls version
+* Documentation fixes
+- inf recursion on restore_on_create bug
+- Python 2.6 support dropped
+
+Thanks to @aidanlister, @atin65536 and @jarekwg, you are awesome!
+
+1.0.12 (2015-11-27)
+====================
+
+- added pre_restore, post_restore signals thanks atin65536
 
 
 1.0.11 (2015-05-29)

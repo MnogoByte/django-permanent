@@ -1,7 +1,8 @@
 import django
 from django.db.models.fields.related import ForeignObject
-from django_permanent import settings
-from django_permanent.query import AllWhereNode, DeletedWhereNode
+
+from . import settings
+from .query import AllWhereNode, DeletedWhereNode
 
 
 def get_extra_restriction_patch(func):
@@ -17,7 +18,10 @@ def get_extra_restriction_patch(func):
         else:
             cond = cond or where_class()
 
-        field = self.model._meta.get_field_by_name(settings.FIELD)[0]
+        if django.VERSION < (1, 8, 0):
+            field = self.model._meta.get_field_by_name(settings.FIELD)[0]
+        else:
+            field = self.model._meta.get_field(settings.FIELD)
 
         if django.VERSION < (1, 7, 0):
             from django.db.models.sql.where import Constraint
@@ -47,15 +51,21 @@ ForeignObject.get_extra_restriction = get_extra_restriction_patch(ForeignObject.
 
 
 if django.VERSION > (1, 8, -1):
-    from django.db.models.fields.related import ReverseSingleRelatedObjectDescriptor
+    if django.VERSION > (1, 9, 0):
+        from django.db.models.fields.related_descriptors import ForwardManyToOneDescriptor as Descriptor
+    else:
+        from django.db.models.fields.related import ReverseSingleRelatedObjectDescriptor as Descriptor
 
     def get_queryset_patch(func):
         def wrapper(self, **hints):
             from .models import PermanentModel
             instance = hints.get('instance')
             if instance and isinstance(instance, PermanentModel) and getattr(instance, settings.FIELD):
-                return self.field.rel.to.all_objects
+                if django.VERSION < (1, 9, 0):
+                    return self.field.rel.to.all_objects
+                else:
+                    return self.field.remote_field.model.all_objects
             return func(self, **hints)
         return wrapper
 
-    ReverseSingleRelatedObjectDescriptor.get_queryset = get_queryset_patch(ReverseSingleRelatedObjectDescriptor.get_queryset)
+    Descriptor.get_queryset = get_queryset_patch(Descriptor.get_queryset)
