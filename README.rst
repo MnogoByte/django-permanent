@@ -8,12 +8,12 @@ Yet another approach to provide soft (logical) delete or masking (thrashing) dja
 Models
 ================
 
-To create non-deletable model just inherit it form the PermanentModel.::
+To create a non-deletable model just inherit it from ``PermanentModel``::
 
     class MyModel(PermanentModel):
         pass
 
-It automatically changes delete behaviour, to hide model instead of deleting. restore() method.::
+It automatically changes delete behaviour to hide objects instead of deleting them::
 
     >>> a = MyModel.objects.create(pk=1)
     >>> b = MyModel.objects.create(pk=2)
@@ -23,31 +23,30 @@ It automatically changes delete behaviour, to hide model instead of deleting. re
     >>> MyModel.objects.count()
     1
 
-To recover model just call its restore method.::
+To recover a deleted object just call its ``restore`` method::
 
     >>> a.restore()
     >>> MyModel.objects.count()
     2
 
-User Force kwarg to enforce physical deletion.::
+Use the ``force`` kwarg to enforce physical deletion::
 
     >>> a.delete(force=True) # Will act as the default django delete
     >>> MyModel._base_manager.count()
     0
 
-If you need to restore deleted model instead of creating the same use `restore_on_create` attribute.::
+If you need to restore a deleted object instead of re-creating the same one use the ``restore_on_create`` attribute::
 
     class MyModel(PermanentModel):
         class Permanent:
           restore_on_create = True
 
-In this case QuerySet provides check existence of same attributes object and restores it if it was removed, creates a
-new if not.
+In this case ``QuerySet`` provides check existence of same attribute objects and restores them if they've been deleted, creating new ones if not.
 
 Managers
 ================
 
-It changes default model manager to ignore deleted objects. And adds deleted_objects manager to find the last ones.::
+It changes the default model manager to ignore deleted objects, adding a ``deleted_objects`` manager to see them instead::
 
     >>> MyModel.objects.count()
     2
@@ -63,44 +62,46 @@ It changes default model manager to ignore deleted objects. And adds deleted_obj
 
 QuerySet
 ================
-Query set delete method will act as the default django delete, with the one exception - all related  PermanentModel children will be marked as deleted, the usual models will be deleted physically::
-        
+
+The ``QuerySet.delete`` method will act as the default django delete, with one exception - objects of models subclassing ``PermanentModel`` will be marked as deleted; the rest will be deleted physically::
+
     >>> MyModel.objects.all().delete()
 
 You can still force django query set physical deletion::
 
     >>> MyModel.objects.all().delete(force=True)
 
-Using custom querysets (requires django-model-utils)
-====================================================
+Using custom querysets
+=======================
 
-1. Inherit your query set from PermanentQuerySet::
+1. Inherit your query set from ``PermanentQuerySet``::
 
     class ServerFileQuerySet(PermanentQuerySet)
         pass
 
-2. Wrap it in the permanent_queryset or deleted_queryset in you model manager declaration::
+2. Wrap ``PermanentQuerySet`` or ``DeletedQuerySet`` in you model manager declaration::
 
     class MyModel(PermanentModel)
         objects = MultiPassThroughManager(ServerFileQuerySet, NonDeletedQuerySet)
         deleted_objects = MultiPassThroughManager(ServerFileQuerySet, DeletedQuerySet)
         all_objects = MultiPassThroughManager(ServerFileQuerySet, PermanentQuerySet)
 
-Method get_restore_or_create
-=============================
+Method ``get_restore_or_create``
+=================================
 
-1. Check existence of the object.
-2. Restore it was deleted.
-3. Create new one, if it wasn't ever created.
+1. Check for existence of the object.
+2. Restore it if it was deleted.
+3. Create a new one, if it was never created.
 
 Field name
 ================
 
-By default field is named removed, but you can override it by PERMANENT_FIELD variable in your settings.py.::
+The default field named is 'removed', but you can override it with the PERMANENT_FIELD variable in settings.py::
 
     PERMANENT_FIELD = 'deleted'
 
 Requirements
-============
+================
 
-Django min 1.6.x required. To cover Django 1.5 needs use 0.1.4 branch.
+- Django 1.7+
+- Python 2.7, 3.4+

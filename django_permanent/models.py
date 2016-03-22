@@ -2,12 +2,12 @@ import django
 from django.db import models, router
 
 if django.VERSION < (1,9):
-    from django.utils.module_loading import import_by_path
+    from django.utils.module_loading import import_by_path as import_string
 else:
-    from django.utils.module_loading import import_string as import_by_path
+    from django.utils.module_loading import import_string
 
 
-from django_permanent import settings
+from . import settings
 from .deletion import *  # NOQA
 from .related import *  # NOQA
 from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
@@ -32,7 +32,6 @@ class PermanentModel(models.Model):
         using = using or router.db_for_write(self.__class__, instance=self)
         assert self._get_pk_val() is not None, "%s object can't be deleted because its %s attribute is set to None." \
                                                % (self._meta.object_name, self._meta.pk.attname)
-
         collector = Collector(using=using)
         collector.collect([self])
         collector.delete(force=force)
@@ -46,5 +45,5 @@ class PermanentModel(models.Model):
         post_restore.send(sender=self.__class__, instance=self)
 
 
-field = import_by_path(settings.FIELD_CLASS)
+field = import_string(settings.FIELD_CLASS)
 PermanentModel.add_to_class(settings.FIELD, field(**settings.FIELD_KWARGS))
