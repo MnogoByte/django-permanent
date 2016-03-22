@@ -10,7 +10,7 @@ if django.VERSION < (1, 7, 0):
 
 setup(
     name='django-permanent',
-    version='1.1.0',
+    version='1.1.1',
     description='Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.',
     author='Alexander Klimenko',
     author_email='alex@erix.ru',

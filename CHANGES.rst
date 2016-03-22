@@ -2,7 +2,13 @@
 CHANGELOG
 =========
 
-1.1.0 (development)
+1.1.1 (2016-03-16)
+====================
+
+- ForeignKey on_delete behaviour bug (thanks @atin65536)
+
+
+1.1.0 (2016-03-16)
 ====================
 
 + Django 1.9 support
