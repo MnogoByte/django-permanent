@@ -14,6 +14,8 @@ from .test_app.models import (
     MyPermanentModel,
     MyPermanentModelWithManager,
     NonRemovableDepended,
+    NonRemovableNullableDepended,
+    RemovableNullableDepended,
     PermanentDepended,
     PermanentM2MThrough,
     RemovableDepended,
@@ -45,6 +47,20 @@ class TestDelete(TestCase):
         depended = model.objects.create(dependence=self.permanent)
         self.permanent.delete()
         self.assertEqual(list(model.objects.all()), [depended])
+
+    def test_non_removable_nullable_depended(self):
+        model = NonRemovableNullableDepended
+        model.objects.create(dependence=self.permanent)
+        self.permanent.delete()
+        depended = model.objects.first()
+        self.assertEqual(depended.dependence, None)
+
+    def test_removable_nullable_depended(self):
+        model = RemovableNullableDepended
+        model.objects.create(dependence=self.permanent)
+        self.permanent.delete()
+        depended = model.objects.first()
+        self.assertEqual(depended.dependence, None)
 
     def test_permanent_depended(self):
         model = PermanentDepended

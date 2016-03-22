@@ -27,6 +27,14 @@ class NonRemovableDepended(BaseTestModel, PermanentModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.DO_NOTHING)
 
 
+class NonRemovableNullableDepended(BaseTestModel, PermanentModel):
+    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.SET_NULL, null=True)
+
+
+class RemovableNullableDepended(BaseTestModel):
+    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.SET_NULL, null=True)
+
+
 class PermanentDepended(BaseTestModel, PermanentModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
 
