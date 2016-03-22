@@ -18,7 +18,6 @@ def get_extra_restriction_patch(func):
         else:
             cond = cond or where_class()
 
-
         if django.VERSION < (1, 8, 0):
             field = self.model._meta.get_field_by_name(settings.FIELD)[0]
         else:
@@ -35,7 +34,7 @@ def get_extra_restriction_patch(func):
             if django.VERSION < (1, 8, 0):
                 from django.db.models.sql.datastructures import Col
             else:
-                from django.db.models.expressions import Col 
+                from django.db.models.expressions import Col
 
             if settings.FIELD_DEFAULT is None:
                 lookup = field.get_lookup('isnull')(Col(lhs, field, field), True)

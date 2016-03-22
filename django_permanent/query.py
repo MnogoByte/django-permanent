@@ -4,8 +4,6 @@ from functools import partial
 import django
 from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
-if django.VERSION < (1, 7, 0):
-    from django.db.models.query import ValuesQuerySet
 
 from django.db.models.query_utils import Q
 from django.db.models.sql.where import WhereNode
@@ -13,6 +11,10 @@ from django.db.models.sql.where import WhereNode
 from . import settings
 
 from .signals import pre_restore, post_restore
+
+
+if django.VERSION < (1, 7, 0):
+    from django.db.models.query import ValuesQuerySet
 
 
 class BasePermanentQuerySet(QuerySet):
@@ -87,7 +89,7 @@ class BasePermanentQuerySet(QuerySet):
             return deleted, _rows_count
 
     delete.alters_data = True
-    #delete.queryset_only = True
+    # delete.queryset_only = True
 
     def restore(self):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})

@@ -1,12 +1,5 @@
 import django
 from django.db import models, router
-
-if django.VERSION < (1,9):
-    from django.utils.module_loading import import_by_path as import_string
-else:
-    from django.utils.module_loading import import_string
-
-
 from . import settings
 from .deletion import *  # NOQA
 from .related import *  # NOQA
@@ -14,6 +7,11 @@ from .query import NonDeletedQuerySet, DeletedQuerySet, PermanentQuerySet
 from .managers import QuerySetManager
 
 from .signals import pre_restore, post_restore
+
+if django.VERSION < (1, 9):
+    from django.utils.module_loading import import_by_path as import_string
+else:
+    from django.utils.module_loading import import_string
 
 
 class PermanentModel(models.Model):
