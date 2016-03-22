@@ -6,7 +6,7 @@ import django
 tests_require = ["Django>=1.6.0"]
 
 if django.VERSION < (1, 7, 0):
-    tests_require.append("django-model-utils")
+    tests_require.append("django-model-utils==2.3.1")
 
 setup(
     name='django-permanent',
