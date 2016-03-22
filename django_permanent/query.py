@@ -89,7 +89,6 @@ class BasePermanentQuerySet(QuerySet):
             return deleted, _rows_count
 
     delete.alters_data = True
-    # delete.queryset_only = True
 
     def restore(self):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
