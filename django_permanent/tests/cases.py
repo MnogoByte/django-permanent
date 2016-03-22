@@ -16,7 +16,8 @@ from .test_app.models import (
     NonRemovableDepended,
     PermanentDepended,
     PermanentM2MThrough,
-    RemovableDepended
+    RemovableDepended,
+    RestoreOnCreateModel,
 )
 
 
@@ -255,3 +256,14 @@ class TestCustomManager(TestCase):
 
     def test_all(self):
         self.assertEqual(MyPermanentModelWithManager.any_objects.count(), 2)
+
+
+class RetoreOnCreateTestCase(TestCase):
+    def setUp(self):
+        self.obj = RestoreOnCreateModel.objects.create(name='obj1')
+
+    def test_restore_on_create(self):
+        self.obj.delete()
+        new_obj = RestoreOnCreateModel.objects.create(name='obj1')
+
+        self.assertEqual(new_obj.pk, self.obj.pk)

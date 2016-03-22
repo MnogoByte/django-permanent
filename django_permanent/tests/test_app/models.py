@@ -64,3 +64,10 @@ class TestQS(object):
 
 class CustomQsPermanent(BaseTestModel, PermanentModel):
     objects = MultiPassThroughManager(TestQS, DeletedQuerySet)
+
+
+class RestoreOnCreateModel(BaseTestModel, PermanentModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
+
+    class Permanent:
+        restore_on_create = True
