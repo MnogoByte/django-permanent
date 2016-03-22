@@ -29,8 +29,7 @@ before_script:
   - flake8 --ignore=E501 django_permanent
 
 script:
-  - python setup.py test
-  - coverage run runtests.py django_permanent
+  - coverage run setup.py test
 
 after_success:
  - pip install coveralls
