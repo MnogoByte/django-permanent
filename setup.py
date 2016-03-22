@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
+import django
+
+tests_require = ["Django>=1.6.0"]
+
+if django.VERSION < (1, 7, 0):
+    tests_require.append("django-model-utils")
 
 setup(
     name='django-permanent',
@@ -25,7 +31,7 @@ setup(
         "Development Status :: 4 - Beta",
         "License :: OSI Approved :: BSD License",
     ],
-    tests_require=["Django>=1.6.0"],
+    tests_require=tests_require,
     test_suite='runtests.runtests',
     license="BSD"
 )
