@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
-import django
 
 tests_require = ["Django>=1.6.0"]
 
-if django.VERSION < (1, 7, 0):
-    tests_require.append("django-model-utils==2.3.1")
+try:
+    import django
+    if django.VERSION < (1, 7, 0):
+        tests_require.append("django-model-utils==2.3.1")
+except ImportError:
+    pass
 
 setup(
     name='django-permanent',
