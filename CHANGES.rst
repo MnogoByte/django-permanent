@@ -3,10 +3,10 @@ CHANGELOG
 =========
 
 
-1.1.2 (development)
+1.1.2 (2016-03-30)
 ====================
 
-- nothing changed yet
+- running setup.py without django bug #47
 
 
 1.1.1 (2016-03-16)
