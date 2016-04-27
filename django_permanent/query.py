@@ -94,7 +94,7 @@ class BasePermanentQuerySet(QuerySet):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
-        if django.VERSION < (1, 7, 0):
+        if django.VERSION < (1, 9, 0):
             klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
             return self._clone(klass=klass, setup=True, _fields=fields)
 
