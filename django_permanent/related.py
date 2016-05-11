@@ -64,7 +64,11 @@ if django.VERSION > (1, 8, -1):
                 if django.VERSION < (1, 9, 0):
                     return self.field.rel.to.all_objects
                 else:
-                    return self.field.remote_field.model.all_objects
+                    if hasattr(self.field.remote_field.model, 'all_objects'): 
+                        return self.field.remote_field.model.all_objects
+                    else:
+                        return self.field.remote_field.model.objects
+                    #return self.field.remote_field.model.all_objects # remove this because not all Model have all_objects attribute
             return func(self, **hints)
         return wrapper
 
