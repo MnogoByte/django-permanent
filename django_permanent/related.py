@@ -68,7 +68,7 @@ if django.VERSION > (1, 8, -1):
                         return self.field.remote_field.model.all_objects
                     else:
                         return self.field.remote_field.model.objects
-                    #return self.field.remote_field.model.all_objects
+                    # return self.field.remote_field.model.all_objects
             return func(self, **hints)
         return wrapper
 
