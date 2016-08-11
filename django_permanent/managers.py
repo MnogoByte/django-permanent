@@ -21,7 +21,7 @@ def MultiPassThroughManager(*classes):
     name = "".join([cls.__name__ for cls in classes])
     if django.VERSION < (1, 7, 0):
         from model_utils.managers import PassThroughManager
-        result_class = PassThroughManager.for_queryset_class(type(name, classes, {})) 
+        result_class = PassThroughManager.for_queryset_class(type(name, classes, {}))
         result = result_class()
 
     else:

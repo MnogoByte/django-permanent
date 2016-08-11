@@ -113,7 +113,6 @@ class BasePermanentQuerySet(QuerySet):
 
         return super(BasePermanentQuerySet, self).values_list(*fields, **kwargs)
 
-
     def _update(self, values):
         # Modifying trigger field have to effect all objects
         if settings.FIELD in [field.attname for field, _, _ in values] and not getattr(self, '_unpatched', False):
