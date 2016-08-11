@@ -13,8 +13,8 @@ from . import settings
 from .signals import pre_restore, post_restore
 
 
-if django.VERSION < (1, 7, 0):
-    from django.db.models.query import ValuesQuerySet
+if django.VERSION < (1, 9, 0):
+    from django.db.models.query import ValuesQuerySet, ValuesListQuerySet
 
 
 class BasePermanentQuerySet(QuerySet):
@@ -94,11 +94,24 @@ class BasePermanentQuerySet(QuerySet):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
-        if django.VERSION < (1, 7, 0):
+        if django.VERSION < (1, 9, 0):
             klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
             return self._clone(klass=klass, setup=True, _fields=fields)
 
         return super(BasePermanentQuerySet, self).values(*fields)
+
+    def values_list(self, *fields, **kwargs):
+        if django.VERSION < (1, 9, 0):
+            klass = type('CustomValuesListQuerySet', (self.__class__, ValuesListQuerySet,), {})
+            clone = self._clone(klass=klass, setup=True, _fields=fields, **kwargs)
+
+            if not hasattr(clone, "flat"):
+                # Only assign flat if the clone didn't already get it from kwargs
+                clone.flat = kwargs.get('flat')
+
+            return clone
+
+        return super(BasePermanentQuerySet, self).values_list(*fields, **kwargs)
 
     def _update(self, values):
         # Modifying trigger field have to effect all objects

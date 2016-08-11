@@ -1,5 +1,6 @@
 import django
 from django.db import models, router
+from django.db.models.deletion import Collector
 from . import settings
 from .deletion import *  # NOQA
 from .related import *  # NOQA
