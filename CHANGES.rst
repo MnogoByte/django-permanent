@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+1.1.4 (development)
+
+- nothing changed yet
+
+
 1.1.3 (2016-09-08)
 ====================
 
