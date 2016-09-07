@@ -2,10 +2,12 @@
 CHANGELOG
 =========
 
-1.1.3 (development)
+1.1.3 (2016-09-08)
 ====================
 
-- nothing changed yet
++ django 1.9 support #56 (thanks @atin65536)
++ values_list support #56 (thanks @atin65536)
+- QuerySet pickling bug #55 (thanks @atin65536)
 
 
 1.1.2 (2016-03-30)
