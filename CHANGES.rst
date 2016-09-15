@@ -2,6 +2,11 @@
 CHANGELOG
 =========
 
+1.1.5 (development)
+
+- nothing changed yet
+
+
 1.1.4 (2016-09-15)
 
 + django 1.10 support #58 (thanks @atin65536)
