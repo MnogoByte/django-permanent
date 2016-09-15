@@ -19,10 +19,13 @@ class PermanentModel(models.Model):
     objects = QuerySetManager(NonDeletedQuerySet)
     deleted_objects = QuerySetManager(DeletedQuerySet)
     all_objects = QuerySetManager(PermanentQuerySet)
-    _base_manager = QuerySetManager(NonDeletedQuerySet)
+    if django.VERSION < (1, 10):
+        _base_manager = QuerySetManager(NonDeletedQuerySet)
 
     class Meta:
         abstract = True
+        if django.VERSION >= (1, 10):
+            base_manager_name = 'objects'
 
     class Permanent:
         restore_on_create = False
