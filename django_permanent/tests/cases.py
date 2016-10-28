@@ -125,6 +125,16 @@ class TestDelete(TestCase):
         MyPermanentModel.objects.all().delete(force=True)
         self.assertEqual(MyPermanentModel.all_objects.count(), 0)
 
+    def test_forced_model_delete_removed(self):
+        self.permanent.delete()
+        self.permanent.delete(force=True)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 0)
+
+    def test_forced_querset_delete_removed(self):
+        self.permanent.delete()
+        MyPermanentModel.all_objects.all().delete(force=True)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 0)
+
 
 class TestIntegration(TestCase):
     def test_prefetch_bug(self):
