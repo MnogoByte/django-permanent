@@ -35,6 +35,9 @@ class PermanentModel(models.Model):
         setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
         self.save(update_fields=[settings.FIELD])
 
+    def _do_update(self, base_qs, *args, **kwargs):
+        return super(PermanentModel, self)._do_update(self.__class__.all_objects.all(), *args, **kwargs)
+
 
 field = import_by_path(settings.FIELD_CLASS)
 PermanentModel.add_to_class(settings.FIELD, field(**settings.FIELD_KWARGS))
