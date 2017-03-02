@@ -54,7 +54,7 @@ If you need to restore a deleted object instead of re-creating the same one use 
 In this case ``QuerySet`` provides check existence of same attribute objects and restores them if they've been deleted, creating new ones if not.
 
 Managers
-================
+========
 
 It changes the default model manager to ignore deleted objects, adding a ``deleted_objects`` manager to see them instead:
 
@@ -73,7 +73,7 @@ It changes the default model manager to ignore deleted objects, adding a ``delet
     2
 
 QuerySet
-================
+========
 
 The ``QuerySet.delete`` method will act as the default django delete, with one exception - objects of models subclassing ``PermanentModel`` will be marked as deleted; the rest will be deleted physically:
 
@@ -88,7 +88,7 @@ You can still force django query set physical deletion:
     >>> MyModel.objects.all().delete(force=True)
 
 Using custom querysets
-=======================
+======================
 
 1. Inherit your query set from ``PermanentQuerySet``:
 
@@ -107,14 +107,14 @@ Using custom querysets
             all_objects = MultiPassThroughManager(ServerFileQuerySet, PermanentQuerySet)
 
 Method ``get_restore_or_create``
-=================================
+================================
 
 1. Check for existence of the object.
 2. Restore it if it was deleted.
 3. Create a new one, if it was never created.
 
 Field name
-================
+==========
 
 The default field named is 'removed', but you can override it with the PERMANENT_FIELD variable in settings.py:
 
@@ -123,7 +123,7 @@ The default field named is 'removed', but you can override it with the PERMANENT
     PERMANENT_FIELD = 'deleted'
 
 Requirements
-================
+============
 
 - Django 1.7+
 - Python 2.7, 3.4+
