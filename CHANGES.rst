@@ -9,7 +9,7 @@ CHANGELOG
 
 1.1.5 (2017-03-02)
 
-+ readme code hilight (thanks @bashu)
++ readme code highlight (thanks @bashu)
 - queryset values method bug #62 (thanks @tjacoel)
 
 
