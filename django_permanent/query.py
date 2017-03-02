@@ -88,8 +88,8 @@ class BasePermanentQuerySet(QuerySet):
         qs._unpatch()
         return qs
 
-    def _clone(self, **kwargs):
-        c = super(BasePermanentQuerySet, self)._clone(**kwargs)
+    def _clone(self, *args, **kwargs):
+        c = super(BasePermanentQuerySet, self)._clone(*args, **kwargs)
         # We need clones stay unpatched
         if getattr(self, '_unpatched', False):
             c._unpatched = True
