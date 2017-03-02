@@ -2,9 +2,9 @@
 CHANGELOG
 =========
 
-1.1.5 (development)
+1.1.5 (2017-03-02)
 
-- nothing changed yet
+- queryset values method bug #62 (thanks @tjacoel)
 
 
 1.1.4 (2016-09-15)
