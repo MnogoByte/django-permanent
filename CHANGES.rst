@@ -3,17 +3,20 @@ CHANGELOG
 =========
 
 1.1.6 (development)
+====================
 
 - nothing changed yet
 
 
 1.1.5 (2017-03-02)
+====================
 
 + readme code highlight (thanks @bashu)
 - queryset values method bug #62 (thanks @tjacoel)
 
 
 1.1.4 (2016-09-15)
+====================
 
 + django 1.10 support #58 (thanks @atin65536)
 
