@@ -62,12 +62,12 @@ if django.VERSION > (1, 8, -1):
             instance = hints.get('instance')
             if instance and isinstance(instance, PermanentModel) and getattr(instance, settings.FIELD):
                 if django.VERSION < (1, 9, 0):
-                    return self.field.rel.to.all_objects
+                    model = self.field.rel.to
                 else:
                     model = self.field.remote_field.model
-                    if hasattr(model, 'all_objects'):
-                        return model.all_objects
-                    return model.objects
+                if hasattr(model, 'all_objects'):
+                    return model.all_objects
+                return model.objects
             return func(self, **hints)
         return wrapper
 
