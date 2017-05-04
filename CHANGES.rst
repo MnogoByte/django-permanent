@@ -2,10 +2,10 @@
 CHANGELOG
 =========
 
-1.1.6 (development)
-===================
+1.1.6 (2017-05-04)
+==================
 
-- nothing changed yet
+- Missing related model all_objects manager bug #65 (thanks @kregoslup)
 
 
 1.1.5 (2017-03-02)
