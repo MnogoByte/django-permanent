@@ -51,7 +51,7 @@ If you need to restore a deleted object instead of re-creating the same one use 
         class Permanent:
           restore_on_create = True
 
-In this case ``QuerySet`` provides check existence of same attribute objects and restores them if they've been deleted, creating new ones if not.
+In this case, ``MyModel.objects.create(...)`` checks for the existence of a soft-deleted object with the same attributes, restoring it if it exists, creating a new one if not. Note that this does not work when creating a new object with ``my_model.save()``.
 
 Managers
 ========
