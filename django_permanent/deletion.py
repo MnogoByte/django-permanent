@@ -42,7 +42,7 @@ def delete(self, force=False):
         for model, obj in self.instances_with_model():
             if not model._meta.auto_created:
                 signals.pre_delete.send(
-                    sender=model, instance=obj, using=self.using
+                    sender=model, instance=obj, using=self.using, force=force
                 )
 
         # fast deletes
@@ -88,7 +88,7 @@ def delete(self, force=False):
             if not model._meta.auto_created:
                 for obj in instances:
                     signals.post_delete.send(
-                        sender=model, instance=obj, using=self.using
+                        sender=model, instance=obj, using=self.using, force=force
                     )
 
     # update collected instances
