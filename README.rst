@@ -5,6 +5,23 @@ Yet another approach to provide soft (logical) delete or masking (thrashing) dja
 
 .. image:: https://api.travis-ci.org/meteozond/django-permanent.svg?branch=master
 
+Installation
+============
+
+Download the package using pip:
+
+.. code-block:: python
+
+    pip install django_permanent
+
+Add ``django_permanent`` to ``INSTALLED_APPS`` in project settings:
+
+.. code-block:: python
+
+    INSTALLED_APPS += 'django_permanent'
+
+From now on you can import ``PermanentModel`` in your models.
+
 Models
 ================
 
