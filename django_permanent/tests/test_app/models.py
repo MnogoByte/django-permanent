@@ -19,6 +19,15 @@ class MyPermanentModel(PermanentModel, BaseTestModel):
     pass
 
 
+class RegularModel(BaseTestModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    pass
+
+
+class RemovableRegularDepended(PermanentModel, BaseTestModel):
+    dependence = models.ForeignKey(RegularModel, on_delete=models.CASCADE)
+
+
 class RemovableDepended(BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
 
