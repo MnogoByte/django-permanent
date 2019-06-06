@@ -24,7 +24,9 @@ class PermanentModel(models.Model):
 
     class Meta:
         abstract = True
+
         if django.VERSION >= (1, 10):
+            default_manager_name = 'objects'
             base_manager_name = 'objects'
 
     class Permanent:
