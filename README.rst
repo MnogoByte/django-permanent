@@ -11,7 +11,8 @@ Models
 To create a non-deletable model just inherit it from ``PermanentModel``:
 
 .. code-block:: python
-
+    from django_permanent.models import PermanentModel
+    
     class MyModel(PermanentModel):
         pass
 
