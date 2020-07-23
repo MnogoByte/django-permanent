@@ -6,7 +6,7 @@ CHANGELOG
 1.1.7 (development)
 ===================
 
-- nothing changed yet
+- django 3.0 support
 
 
 1.1.6 (2017-05-04)

@@ -20,7 +20,7 @@ setup(
     long_description=open('README.rst').read(),
     url='https://github.com/MnogoByte/django-permanent',
     packages=find_packages(),
-    install_requires=["Django>=1.6.0"],
+    install_requires=["Django>=1.6.0", "six"],
     keywords=['django', 'delete', 'undelete', 'safedelete', 'remove', 'restore', 'softdelete', 'logicaldelete', 'trash'],
     classifiers=[
         "Framework :: Django",
