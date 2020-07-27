@@ -4,7 +4,6 @@ import sys
 import django
 import django.conf
 
-
 DEFAULT_SETTINGS = dict(
     INSTALLED_APPS=(
         'django_permanent',
@@ -17,8 +16,6 @@ DEFAULT_SETTINGS = dict(
     MIDDLEWARE_CLASSES=[]
 )
 
-if django.VERSION < (1, 7, 0):
-    DEFAULT_SETTINGS['INSTALLED_APPS'] += ('django_permanent.tests.test_app', )
 
 def runtests(*test_args):
     if not django.conf.settings.configured:

@@ -3,7 +3,6 @@ from collections import Counter
 from functools import partial
 from operator import attrgetter
 
-import six
 from django import VERSION as DJANGO_VERSION
 from django.db import transaction
 from django.db.models import signals, sql
@@ -59,18 +58,18 @@ def delete(self, force=False):
                 deleted_counter[qs.model._meta.label] += count
 
         # update fields
-        for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
+        for model, instances_for_fieldvalues in self.field_updates.items():
             query = sql.UpdateQuery(model)
-            for (field, value), instances in six.iteritems(instances_for_fieldvalues):
+            for (field, value), instances in instances_for_fieldvalues.items():
                 query.update_batch([obj.pk for obj in instances],
                                    {field.name: value}, self.using)
 
         # reverse instance collections
-        for instances in six.itervalues(self.data):
+        for instances in self.data.values():
             instances.reverse()
 
         # delete instances
-        for model, instances in six.iteritems(self.data):
+        for model, instances in self.data.items():
             pk_list = [obj.pk for obj in instances]
             if issubclass(model, PermanentModel) and not force:
                 query = sql.UpdateQuery(model)
@@ -92,11 +91,11 @@ def delete(self, force=False):
                     )
 
     # update collected instances
-    for model, instances_for_fieldvalues in six.iteritems(self.field_updates):
-        for (field, value), instances in six.iteritems(instances_for_fieldvalues):
+    for model, instances_for_fieldvalues in self.field_updates.items():
+        for (field, value), instances in instances_for_fieldvalues.items():
             for obj in instances:
                 setattr(obj, field.attname, value)
-    for model, instances in six.iteritems(self.data):
+    for model, instances in self.data.items():
         for instance in instances:
             if issubclass(model, PermanentModel) and not force:
                 continue

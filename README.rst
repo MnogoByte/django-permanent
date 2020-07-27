@@ -126,4 +126,4 @@ Requirements
 ============
 
 - Django 1.7+
-- Python 2.7, 3.4+
+- Python 3.4+

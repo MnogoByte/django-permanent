@@ -3,10 +3,12 @@ CHANGELOG
 =========
 
 
-1.1.7 (development)
+1.2.0 (development)
 ===================
 
-- django 3.0 support
++ django 3.0 support
+- Removed support for python 2.7
+- Removed support for django 1.6
 
 
 1.1.6 (2017-05-04)
