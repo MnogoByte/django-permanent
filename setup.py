@@ -2,18 +2,19 @@
 # -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
 
-tests_require = ["Django>=1.6.0"]
+tests_require = ["Django>=1.7.0"]
 
 try:
     import django
     if django.VERSION < (1, 7, 0):
         tests_require.append("django-model-utils==2.3.1")
+
 except ImportError:
     pass
 
 setup(
     name='django-permanent',
-    version='1.1.7',
+    version='1.1.8',
     description='Yet another approach to provide soft (logical) delete or masking (thrashing) django models instead of deleting them physically from db.',
     author='Mikhail Antonov',
     author_email='atin65536@gmail.com',

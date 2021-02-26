@@ -6,9 +6,11 @@ from operator import attrgetter
 from django.db import transaction
 from django.db.models import signals, sql
 from django.db.models.deletion import Collector
-from django.utils import six
 from django.utils.timezone import now
 from django import VERSION as DJANGO_VERSION
+
+if django.VERSION < (3, 0, 0):
+    from django.utils import six
 
 from .settings import FIELD
 
