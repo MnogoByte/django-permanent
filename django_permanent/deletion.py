@@ -9,7 +9,7 @@ from django.db.models.deletion import Collector
 from django.utils.timezone import now
 from django import VERSION as DJANGO_VERSION
 
-if django.VERSION < (3, 0, 0):
+if DJANGO_VERSION< (3, 0, 0):
     from django.utils import six
 
 from .settings import FIELD
