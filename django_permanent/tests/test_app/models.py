@@ -7,35 +7,44 @@ from ...query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
 
 
 class BaseTestModel(Model):
-    class Meta():
+    class Meta:
         abstract = True
 
     def __str__(self):
         return str(self.pk)
 
 
-class MyPermanentModel(BaseTestModel, PermanentModel):
+class MyPermanentModel(PermanentModel, BaseTestModel):
     name = models.CharField(max_length=255, blank=True, null=True)
     pass
+
+
+class RegularModel(BaseTestModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    pass
+
+
+class RemovableRegularDepended(PermanentModel, BaseTestModel):
+    dependence = models.ForeignKey(RegularModel, on_delete=models.CASCADE)
 
 
 class RemovableDepended(BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
 
 
-class NonRemovableDepended(BaseTestModel, PermanentModel):
+class NonRemovableDepended(PermanentModel, BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.DO_NOTHING)
 
 
-class NonRemovableNullableDepended(BaseTestModel, PermanentModel):
+class NonRemovableNullableDepended(PermanentModel, BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.SET_NULL, null=True)
 
 
-class RemovableNullableDepended(BaseTestModel):
+class RemovableNullableDepended(PermanentModel, BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.SET_NULL, null=True)
 
 
-class PermanentDepended(BaseTestModel, PermanentModel):
+class PermanentDepended(PermanentModel, BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
 
 
@@ -57,7 +66,7 @@ class MyPermanentQuerySet(PermanentQuerySet):
         pass
 
 
-class MyPermanentModelWithManager(BaseTestModel, PermanentModel):
+class MyPermanentModelWithManager(PermanentModel, BaseTestModel):
     name = models.CharField(max_length=255, blank=True, null=True)
 
     objects = MultiPassThroughManager(MyPermanentQuerySet, NonDeletedQuerySet)
@@ -70,11 +79,11 @@ class TestQS(object):
         return "ok"
 
 
-class CustomQsPermanent(BaseTestModel, PermanentModel):
+class CustomQsPermanent(PermanentModel, BaseTestModel):
     objects = MultiPassThroughManager(TestQS, DeletedQuerySet)
 
 
-class RestoreOnCreateModel(BaseTestModel, PermanentModel):
+class RestoreOnCreateModel(PermanentModel, BaseTestModel):
     name = models.CharField(max_length=255, blank=True, null=True)
 
     class Permanent:

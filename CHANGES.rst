@@ -2,26 +2,54 @@
 CHANGELOG
 =========
 
-1.1.3 (development)
-====================
+
+1.1.7 (development)
+===================
 
 - nothing changed yet
 
 
+1.1.6 (2017-05-04)
+==================
+
+- Missing related model all_objects manager bug #65 (thanks @kregoslup)
+
+
+1.1.5 (2017-03-02)
+==================
+
++ readme code highlight (thanks @bashu)
+- queryset values method bug #62 (thanks @tjacoel)
+
+
+1.1.4 (2016-09-15)
+==================
+
++ django 1.10 support #58 (thanks @atin65536)
+
+
+1.1.3 (2016-09-08)
+==================
+
++ django 1.9 support #56 (thanks @atin65536)
++ values_list support #56 (thanks @atin65536)
+- QuerySet pickling bug #55 (thanks @atin65536)
+
+
 1.1.2 (2016-03-30)
-====================
+==================
 
 - running setup.py without django bug #47
 
 
 1.1.1 (2016-03-16)
-====================
+==================
 
 - ForeignKey on_delete behaviour bug (thanks @atin65536)
 
 
 1.1.0 (2016-03-16)
-====================
+==================
 
 + Django 1.9 support
 + QuerySetManager support
@@ -34,20 +62,20 @@ CHANGELOG
 Thanks to @aidanlister, @atin65536 and @jarekwg, you are awesome!
 
 1.0.12 (2015-11-27)
-====================
+===================
 
 - added pre_restore, post_restore signals thanks atin65536
 
 
 1.0.11 (2015-05-29)
-==================
+===================
 
 - Fixed deepcopy()-ing PermanentQuerySet #30
 - all_objects.select_related bug #31
 
 
 1.0.10 (2015-04-03)
-==================
+===================
 
 - Skip test_m2m_select_related test on Django 1.8 #27
 - Manager isn't available; PermanentModel is abstract #24

@@ -1,5 +1,6 @@
 import django
 from django.db import models, router
+from django.db.models.deletion import Collector
 from . import settings
 from .deletion import *  # NOQA
 from .related import *  # NOQA
@@ -18,10 +19,15 @@ class PermanentModel(models.Model):
     objects = QuerySetManager(NonDeletedQuerySet)
     deleted_objects = QuerySetManager(DeletedQuerySet)
     all_objects = QuerySetManager(PermanentQuerySet)
-    _base_manager = QuerySetManager(NonDeletedQuerySet)
+    if django.VERSION < (1, 10):
+        _base_manager = QuerySetManager(NonDeletedQuerySet)
 
     class Meta:
         abstract = True
+
+        if django.VERSION >= (1, 10):
+            default_manager_name = 'objects'
+            base_manager_name = 'objects'
 
     class Permanent:
         restore_on_create = False

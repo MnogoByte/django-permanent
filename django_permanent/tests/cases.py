@@ -7,6 +7,7 @@ from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
 
+from django_permanent.tests.test_app.models import RegularModel, RemovableRegularDepended
 from .test_app.models import (
     CustomQsPermanent,
     M2MFrom,
@@ -61,6 +62,15 @@ class TestDelete(TestCase):
         self.permanent.delete()
         depended = model.objects.first()
         self.assertEqual(depended.dependence, None)
+
+    def test_remove_removable_nullable_depended(self):
+        model = RemovableRegularDepended
+        test_model = model.objects.create(dependence=RegularModel.objects.create(name='Test'))
+        test_model.delete()
+        try:
+            self.assertIsNotNone(model.deleted_objects.first().dependence)
+        except AttributeError:
+            self.fail()
 
     def test_permanent_depended(self):
         model = PermanentDepended
@@ -123,6 +133,16 @@ class TestDelete(TestCase):
 
     def test_forced_queryset_delete(self):
         MyPermanentModel.objects.all().delete(force=True)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 0)
+
+    def test_forced_model_delete_removed(self):
+        self.permanent.delete()
+        self.permanent.delete(force=True)
+        self.assertEqual(MyPermanentModel.all_objects.count(), 0)
+
+    def test_forced_querset_delete_removed(self):
+        self.permanent.delete()
+        MyPermanentModel.all_objects.all().delete(force=True)
         self.assertEqual(MyPermanentModel.all_objects.count(), 0)
 
 
