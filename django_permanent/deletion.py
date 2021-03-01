@@ -95,7 +95,7 @@ def delete(self, force=False):
         for (field, value), instances in instances_for_fieldvalues.items():
             for obj in instances:
                 setattr(obj, field.attname, value)
-    for model, instances in self.dataitems():
+    for model, instances in self.data.items():
         for instance in instances:
             if issubclass(model, PermanentModel) and not force:
                 continue
