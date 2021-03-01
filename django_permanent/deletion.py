@@ -65,7 +65,7 @@ def delete(self, force=False):
                                    {field.name: value}, self.using)
 
         # reverse instance collections
-        for instances in self.data.items():
+        for instances in self.data.values():
             instances.reverse()
 
         # delete instances
