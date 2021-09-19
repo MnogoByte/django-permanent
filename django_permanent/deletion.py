@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import six
+
 from collections import Counter
 from functools import partial
 from operator import attrgetter
@@ -6,7 +8,6 @@ from operator import attrgetter
 from django.db import transaction
 from django.db.models import signals, sql
 from django.db.models.deletion import Collector
-from django.utils import six
 from django.utils.timezone import now
 from django import VERSION as DJANGO_VERSION
 
