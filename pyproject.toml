@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "django-permanent"
+version = "0.1.0"
+description = ""
+authors = ["william chu <william.chu@uptickhq.com>"]
+readme = "README.md"
+packages = [{ include = "django_permanent" }]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+django = "^3.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.12.0"
+mypy = "^1.0.0"
+django-stubs = "^1.14.0"
+black = "^23.1.0"
+ruff = "^0.0.246"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
