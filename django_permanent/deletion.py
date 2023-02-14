@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from collections import Counter
 from functools import partial
 from operator import attrgetter

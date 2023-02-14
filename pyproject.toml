@@ -20,6 +20,65 @@ ruff = "^0.0.246"
 pytest = "^7.2.1"
 pytest-coverage = "^0.0"
 
+
+[tool.black]
+target-version = ["py311"]
+include = "\\.pyi?$"
+preview = true
+line-length = 88
+force_exclude = "(\n  /(\n    | migrations\n  )/\n  | urls\\.py\n)\n"
+
+[tool.ruff]
+line-length = 88
+
+# Enable Pyflakes `E` and `F` codes by default.
+select = [
+    "F",   # Pyflakes
+    "E",   # Pycodestyle
+    "W",   # Pycodestyle
+    "C90", # Mccabe complexity
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "S",   # bandit (security)
+    "DTZ", # Enforce good datetime
+    "BLE", # Blind exceptions
+]
+
+ignore = [
+    "E501", # Line length is done by black
+    "D202", # NoBlankLineAfterFunction
+    "S101", # Use of `assert` detected
+]
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+target-version = "py311"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -82,7 +82,7 @@ class MyPermanentModelWithManager(PermanentModel, BaseTestModel):
     any_objects = MultiPassThroughManager(MyPermanentQuerySet, PermanentQuerySet)
 
 
-class TestQS(object):
+class TestQS:
     def test(self):
         return "ok"
 

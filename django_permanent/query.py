@@ -25,7 +25,7 @@ class BasePermanentQuerySet(QuerySet[T]):
         return obj
 
     def __init__(self, *args, **kwargs):
-        super(BasePermanentQuerySet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         self._unpatched = False
 
@@ -36,7 +36,7 @@ class BasePermanentQuerySet(QuerySet[T]):
             ):
                 qs = self.get_unpatched()
                 return qs.get_restore_or_create(**kwargs)
-        return super(BasePermanentQuerySet, self).create(**kwargs)
+        return super().create(**kwargs)
 
     def get_restore_or_create(self, **kwargs):
         qs = self.get_unpatched()
@@ -89,10 +89,10 @@ class BasePermanentQuerySet(QuerySet[T]):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
-        return super(BasePermanentQuerySet, self).values(*fields)
+        return super().values(*fields)
 
     def values_list(self, *fields, **kwargs):
-        return super(BasePermanentQuerySet, self).values_list(*fields, **kwargs)
+        return super().values_list(*fields, **kwargs)
 
     def _update(self, values):
         # Modifying trigger field have to effect all objects
@@ -100,7 +100,7 @@ class BasePermanentQuerySet(QuerySet[T]):
             self, "_unpatched", False
         ):
             return self.get_unpatched()._update(values)
-        return super(BasePermanentQuerySet, self)._update(values)
+        return super()._update(values)
 
     def get_unpatched(self):
         qs = self._clone()
@@ -108,7 +108,7 @@ class BasePermanentQuerySet(QuerySet[T]):
         return qs
 
     def _clone(self, *args, **kwargs):
-        c = super(BasePermanentQuerySet, self)._clone(*args, **kwargs)
+        c = super()._clone(*args, **kwargs)
         # We need clones stay unpatched
         if getattr(self, "_unpatched", False):
             c._unpatched = True

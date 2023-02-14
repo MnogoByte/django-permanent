@@ -10,7 +10,7 @@ FIELD = getattr(settings, "PERMANENT_FIELD", "removed")
 FIELD_KWARGS = getattr(
     settings,
     "PERMANENT_FIELD_KWARGS",
-    dict(default=None, null=True, blank=True, editable=False),
+    {"default": None, "null": True, "blank": True, "editable": False},
 )
 
 FIELD_DEFAULT = FIELD_KWARGS["default"]

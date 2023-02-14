@@ -1,4 +1,3 @@
-import django
 import pytest
 from django.db.models.signals import post_delete
 from django.test import TestCase
