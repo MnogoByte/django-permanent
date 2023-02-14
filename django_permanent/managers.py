@@ -1,8 +1,6 @@
-from typing import ClassVar, Self, TypeVar
+from typing import TypeVar
 
-import django
 from django.db import models
-from django.db.models import Manager
 
 from .query import (
     BasePermanentQuerySet,
@@ -39,19 +37,6 @@ class DeletedObjectsManager(BasePermanentManager[T]):
     qs_class = DeletedQuerySet
 
 
-# class PermanentTrackedModel(PermanentModel):
-
-
-# def MultiPassThroughManager(*classes):
-#     name = "".join([cls.__name__ for cls in classes])
-#     result_class = type(name, classes, {})
-#     result = result_class.as_manager()
-
-#     globals()[name] = result_class
-
-#     return result
-
-
 QS = TypeVar("QS", bound=models.QuerySet)
 
 
@@ -66,13 +51,3 @@ def MultiPassThroughManager(
     globals()[name] = result_class
 
     return result
-
-
-# def AllManagers(cls: Type[models.QuerySet[T]]) -> tuple[BasePermanentManager]:
-#     name = "".join([cls.__name__ for cls in classes])
-#     result_class = type(name, classes, {})
-#     result = result_class.as_manager()
-
-#     globals()[name] = result_class
-
-#     return result

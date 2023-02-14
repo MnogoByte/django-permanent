@@ -1,11 +1,8 @@
-from typing import TYPE_CHECKING, ClassVar, Self
+from typing import ClassVar, Self
 
-import django
 from django.db import models, router
 from django.db.models.deletion import Collector
 from django.utils.module_loading import import_string
-
-from django_permanent.query import BasePermanentQuerySet, NonDeletedQuerySet, lol
 
 from . import settings
 from .deletion import *  # NOQA
@@ -13,7 +10,6 @@ from .managers import (
     AllObjectsManager,
     BasePermanentManager,
     DeletedObjectsManager,
-    MultiPassThroughManager,
     NonDeletedManager,
 )
 from .related import *  # NOQA
@@ -28,9 +24,8 @@ class PermanentModel(models.Model):
     class Meta:
         abstract = True
 
-        if django.VERSION >= (1, 10):
-            default_manager_name = "objects"
-            base_manager_name = "objects"
+        default_manager_name = "objects"
+        base_manager_name = "objects"
 
     class Permanent:
         restore_on_create = False
@@ -58,36 +53,3 @@ class PermanentModel(models.Model):
 
 field = import_string(settings.FIELD_CLASS)
 PermanentModel.add_to_class(settings.FIELD, field(**settings.FIELD_KWARGS))
-
-
-if TYPE_CHECKING:
-
-    class OtherModelQuerySet(models.QuerySet["OtherModel"]):
-        def something(self) -> "Self":
-            return self
-
-        def add(self) -> "int":
-            return 1
-
-    M = models.Manager.from_queryset(OtherModelQuerySet)
-
-    class OtherModel(PermanentModel):
-        # lol_objects =OtherModelQuerySet.as_manager()
-        lol_objects = M()
-        rofl = MultiPassThroughManager(OtherModelQuerySet, NonDeletedQuerySet)
-
-    reveal_type(OtherModel.lol_objects.something())
-    reveal_type(OtherModel.lol_objects.add())
-    reveal_type(OtherModel.lol_objects)
-
-    from django.db import models
-
-    class MyQuerySet(models.QuerySet):
-        ...
-
-    class MyModel(models.Model):
-        objects = MyQuerySet.as_manager()
-
-    reveal_type(
-        MyModel.objects
-    )  # N: Revealed type is "myapp.models.ManagerFromMyQuerySet[myapp.models.MyModel]"

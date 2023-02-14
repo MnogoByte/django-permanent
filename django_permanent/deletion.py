@@ -3,7 +3,6 @@ from collections import Counter
 from functools import partial
 from operator import attrgetter
 
-from django import VERSION as DJANGO_VERSION
 from django.db import transaction
 from django.db.models import signals, sql
 from django.db.models.deletion import Collector
@@ -32,14 +31,9 @@ def delete(self, force=False):
     # number of objects deleted for each model label
     deleted_counter = Counter()
 
-    if DJANGO_VERSION < (1, 8, 0):
-        transaction_handling = partial(
-            transaction.commit_on_success_unless_managed, using=self.using
-        )
-    else:
-        transaction_handling = partial(
-            transaction.atomic, using=self.using, savepoint=False
-        )
+    transaction_handling = partial(
+        transaction.atomic, using=self.using, savepoint=False
+    )
 
     with transaction_handling():
         # send pre_delete signals
@@ -59,8 +53,7 @@ def delete(self, force=False):
             else:
                 count = qs._raw_delete(using=self.using)
 
-            if DJANGO_VERSION >= (1, 9, 0):
-                deleted_counter[qs.model._meta.label] += count
+            deleted_counter[qs.model._meta.label] += count
 
         # update fields
         for model, instances_for_fieldvalues in self.field_updates.items():
@@ -87,8 +80,7 @@ def delete(self, force=False):
                 query = sql.DeleteQuery(model)
                 count = query.delete_batch(pk_list, self.using)
 
-            if DJANGO_VERSION >= (1, 9, 0):
-                deleted_counter[model._meta.label] += count
+            deleted_counter[model._meta.label] += count
 
             if not model._meta.auto_created:
                 for obj in instances:
@@ -107,8 +99,7 @@ def delete(self, force=False):
                 continue
             setattr(instance, model._meta.pk.attname, None)
 
-    if DJANGO_VERSION >= (1, 9, 0):
-        return sum(deleted_counter.values()), dict(deleted_counter)
+    return sum(deleted_counter.values()), dict(deleted_counter)
 
 
 Collector.delete = delete

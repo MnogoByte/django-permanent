@@ -1,7 +1,7 @@
 import copy
 from functools import partial
+from typing import TypeVar
 
-import django
 from django.db.models import Model
 from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
@@ -10,11 +10,6 @@ from django.db.models.sql.where import WhereNode
 
 from . import settings
 from .signals import post_restore, pre_restore
-
-if django.VERSION < (1, 9, 0):
-    from django.db.models.query import ValuesQuerySet, ValuesListQuerySet
-
-from typing import TypeVar
 
 T = TypeVar("T", bound=Model)
 
@@ -81,18 +76,12 @@ class BasePermanentQuerySet(QuerySet[T]):
 
         collector = Collector(using=del_query.db)
         collector.collect(del_query)
-        if django.VERSION < (1, 9, 0):
-            collector.delete(force=force)
-        else:
-            deleted, _rows_count = collector.delete(force=force)
+        deleted, _rows_count = collector.delete(force=force)
 
         # Clear the result cache, in case this QuerySet gets reused.
         self._result_cache = None
 
-        if django.VERSION < (1, 9, 0):
-            return
-        else:
-            return deleted, _rows_count
+        return deleted, _rows_count
 
     delete.alters_data = True
 
@@ -100,37 +89,9 @@ class BasePermanentQuerySet(QuerySet[T]):
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
 
     def values(self, *fields):
-        if django.VERSION < (1, 9, 0):
-            klass = type(
-                "CustomValuesQuerySet",
-                (
-                    self.__class__,
-                    ValuesQuerySet,
-                ),
-                {},
-            )
-            return self._clone(klass=klass, setup=True, _fields=fields)
-
         return super(BasePermanentQuerySet, self).values(*fields)
 
     def values_list(self, *fields, **kwargs):
-        if django.VERSION < (1, 9, 0):
-            klass = type(
-                "CustomValuesListQuerySet",
-                (
-                    self.__class__,
-                    ValuesListQuerySet,
-                ),
-                {},
-            )
-            clone = self._clone(klass=klass, setup=True, _fields=fields, **kwargs)
-
-            if not hasattr(clone, "flat"):
-                # Only assign flat if the clone didn't already get it from kwargs
-                clone.flat = kwargs.get("flat")
-
-            return clone
-
         return super(BasePermanentQuerySet, self).values_list(*fields, **kwargs)
 
     def _update(self, values):
@@ -163,20 +124,9 @@ class BasePermanentQuerySet(QuerySet[T]):
             return
         condition = self.query.where.children[0]
 
-        if django.VERSION < (1, 7, 0):
-            is_patched = (
-                isinstance(condition, tuple) and condition[0].col == settings.FIELD
-            )
-        elif django.VERSION < (1, 8, 0):
-            is_patched = (
-                hasattr(condition, "lhs")
-                and condition.lhs.source.name == settings.FIELD
-            )
-        else:
-            is_patched = (
-                hasattr(condition, "lhs")
-                and condition.lhs.target.name == settings.FIELD
-            )
+        is_patched = (
+            hasattr(condition, "lhs") and condition.lhs.target.name == settings.FIELD
+        )
         if is_patched:
             del self.query.where.children[0]
 
@@ -209,8 +159,3 @@ class PermanentQuerySet(BasePermanentQuerySet[T]):
         super().__init__(*args, **kwargs)
         if not self.query.where:
             self.query.where_class = AllWhereNode
-
-
-def lol(cls: type[BasePermanentQuerySet[T]]) -> type[BasePermanentQuerySet[T]]:
-    cls.__init__ = NonDeletedQuerySet.__init__
-    return cls
