@@ -1,4 +1,7 @@
 from django.db.models.fields.related import ForeignObject
+from django.db.models.fields.related_descriptors import (
+    ForwardManyToOneDescriptor as Descriptor,
+)
 
 from . import settings
 from .query import AllWhereNode, DeletedWhereNode
@@ -40,11 +43,6 @@ def get_extra_restriction_patch(func):
 
 ForeignObject.get_extra_restriction = get_extra_restriction_patch(
     ForeignObject.get_extra_restriction
-)
-
-
-from django.db.models.fields.related_descriptors import (
-    ForwardManyToOneDescriptor as Descriptor,
 )
 
 
