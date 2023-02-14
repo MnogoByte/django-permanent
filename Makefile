@@ -20,7 +20,7 @@ ruff:
 	poetry run ruff ${folder}
 
 # Format python files
-black:
+lint/black:
 	@echo "--- 🎩 Blacking 🎩 ---"
 	poetry run black ${folder} --check
 
@@ -30,7 +30,7 @@ mypy:
 	poetry run mypy ${folder}
 
 # Run all linters
-lint: isort ruff black mypy
+lint: isort ruff lint/black mypy
 
 
 # Run all tests
