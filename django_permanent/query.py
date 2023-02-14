@@ -2,26 +2,28 @@ import copy
 from functools import partial
 
 import django
+from django.db.models import Model
 from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
-
 from django.db.models.query_utils import Q
 from django.db.models.sql.where import WhereNode
 
 from . import settings
-
-from .signals import pre_restore, post_restore
-
+from .signals import post_restore, pre_restore
 
 if django.VERSION < (1, 9, 0):
     from django.db.models.query import ValuesQuerySet, ValuesListQuerySet
 
+from typing import TypeVar
 
-class BasePermanentQuerySet(QuerySet):
+T = TypeVar("T", bound=Model)
+
+
+class BasePermanentQuerySet(QuerySet[T]):
     def __deepcopy__(self, memo):
         obj = self.__class__(model=self.model)
         for k, v in self.__dict__.items():
-            if k == '_result_cache':
+            if k == "_result_cache":
                 obj.__dict__[k] = None
             else:
                 obj.__dict__[k] = copy.deepcopy(v, memo)
@@ -34,7 +36,9 @@ class BasePermanentQuerySet(QuerySet):
 
     def create(self, **kwargs):
         if not self._unpatched:
-            if self.model.Permanent.restore_on_create and not kwargs.get(settings.FIELD):
+            if self.model.Permanent.restore_on_create and not kwargs.get(
+                settings.FIELD
+            ):
                 qs = self.get_unpatched()
                 return qs.get_restore_or_create(**kwargs)
         return super(BasePermanentQuerySet, self).create(**kwargs)
@@ -50,7 +54,9 @@ class BasePermanentQuerySet(QuerySet):
         if not created and geter(settings.FIELD, True):
             pre_restore.send(sender=self.model, instance=obj)
             seter(settings.FIELD, settings.FIELD_DEFAULT)
-            self.model.all_objects.filter(id=geter('id')).update(**{settings.FIELD: settings.FIELD_DEFAULT})
+            self.model.all_objects.filter(id=geter("id")).update(
+                **{settings.FIELD: settings.FIELD_DEFAULT}
+            )
             post_restore.send(sender=self.model, instance=obj)
 
         return obj
@@ -95,19 +101,33 @@ class BasePermanentQuerySet(QuerySet):
 
     def values(self, *fields):
         if django.VERSION < (1, 9, 0):
-            klass = type('CustomValuesQuerySet', (self.__class__, ValuesQuerySet,), {})
+            klass = type(
+                "CustomValuesQuerySet",
+                (
+                    self.__class__,
+                    ValuesQuerySet,
+                ),
+                {},
+            )
             return self._clone(klass=klass, setup=True, _fields=fields)
 
         return super(BasePermanentQuerySet, self).values(*fields)
 
     def values_list(self, *fields, **kwargs):
         if django.VERSION < (1, 9, 0):
-            klass = type('CustomValuesListQuerySet', (self.__class__, ValuesListQuerySet,), {})
+            klass = type(
+                "CustomValuesListQuerySet",
+                (
+                    self.__class__,
+                    ValuesListQuerySet,
+                ),
+                {},
+            )
             clone = self._clone(klass=klass, setup=True, _fields=fields, **kwargs)
 
             if not hasattr(clone, "flat"):
                 # Only assign flat if the clone didn't already get it from kwargs
-                clone.flat = kwargs.get('flat')
+                clone.flat = kwargs.get("flat")
 
             return clone
 
@@ -115,7 +135,9 @@ class BasePermanentQuerySet(QuerySet):
 
     def _update(self, values):
         # Modifying trigger field have to effect all objects
-        if settings.FIELD in [field.attname for field, _, _ in values] and not getattr(self, '_unpatched', False):
+        if settings.FIELD in [field.attname for field, _, _ in values] and not getattr(
+            self, "_unpatched", False
+        ):
             return self.get_unpatched()._update(values)
         return super(BasePermanentQuerySet, self)._update(values)
 
@@ -127,7 +149,7 @@ class BasePermanentQuerySet(QuerySet):
     def _clone(self, *args, **kwargs):
         c = super(BasePermanentQuerySet, self)._clone(*args, **kwargs)
         # We need clones stay unpatched
-        if getattr(self, '_unpatched', False):
+        if getattr(self, "_unpatched", False):
             c._unpatched = True
             c._unpatch()
         return c
@@ -142,18 +164,26 @@ class BasePermanentQuerySet(QuerySet):
         condition = self.query.where.children[0]
 
         if django.VERSION < (1, 7, 0):
-            is_patched = isinstance(condition, tuple) and condition[0].col == settings.FIELD
+            is_patched = (
+                isinstance(condition, tuple) and condition[0].col == settings.FIELD
+            )
         elif django.VERSION < (1, 8, 0):
-            is_patched = hasattr(condition, 'lhs') and condition.lhs.source.name == settings.FIELD
+            is_patched = (
+                hasattr(condition, "lhs")
+                and condition.lhs.source.name == settings.FIELD
+            )
         else:
-            is_patched = hasattr(condition, 'lhs') and condition.lhs.target.name == settings.FIELD
+            is_patched = (
+                hasattr(condition, "lhs")
+                and condition.lhs.target.name == settings.FIELD
+            )
         if is_patched:
             del self.query.where.children[0]
 
 
-class NonDeletedQuerySet(BasePermanentQuerySet):
+class NonDeletedQuerySet(BasePermanentQuerySet[T]):
     def __init__(self, *args, **kwargs):
-        super(NonDeletedQuerySet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.query.where:
             self._patch(Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
 
@@ -162,9 +192,9 @@ class DeletedWhereNode(WhereNode):
     pass
 
 
-class DeletedQuerySet(BasePermanentQuerySet):
+class DeletedQuerySet(BasePermanentQuerySet[T]):
     def __init__(self, *args, **kwargs):
-        super(DeletedQuerySet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.query.where:
             self.query.where_class = DeletedWhereNode
             self._patch(~Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
@@ -174,8 +204,13 @@ class AllWhereNode(WhereNode):
     pass
 
 
-class PermanentQuerySet(BasePermanentQuerySet):
+class PermanentQuerySet(BasePermanentQuerySet[T]):
     def __init__(self, *args, **kwargs):
-        super(PermanentQuerySet, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         if not self.query.where:
             self.query.where_class = AllWhereNode
+
+
+def lol(cls: type[BasePermanentQuerySet[T]]) -> type[BasePermanentQuerySet[T]]:
+    cls.__init__ = NonDeletedQuerySet.__init__
+    return cls

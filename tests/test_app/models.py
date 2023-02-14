@@ -1,9 +1,13 @@
 from django.db import models
 from django.db.models import Model
 
-from ...models import PermanentModel
-from ...managers import MultiPassThroughManager
-from ...query import DeletedQuerySet, PermanentQuerySet, NonDeletedQuerySet
+from django_permanent.managers import MultiPassThroughManager
+from django_permanent.models import PermanentModel
+from django_permanent.query import (
+    DeletedQuerySet,
+    NonDeletedQuerySet,
+    PermanentQuerySet,
+)
 
 
 class BaseTestModel(Model):
@@ -37,11 +41,15 @@ class NonRemovableDepended(PermanentModel, BaseTestModel):
 
 
 class NonRemovableNullableDepended(PermanentModel, BaseTestModel):
-    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.SET_NULL, null=True)
+    dependence = models.ForeignKey(
+        MyPermanentModel, on_delete=models.SET_NULL, null=True
+    )
 
 
 class RemovableNullableDepended(PermanentModel, BaseTestModel):
-    dependence = models.ForeignKey(MyPermanentModel, on_delete=models.SET_NULL, null=True)
+    dependence = models.ForeignKey(
+        MyPermanentModel, on_delete=models.SET_NULL, null=True
+    )
 
 
 class PermanentDepended(PermanentModel, BaseTestModel):
@@ -53,12 +61,12 @@ class M2MFrom(BaseTestModel):
 
 
 class PermanentM2MThrough(PermanentModel):
-    m2m_from = models.ForeignKey('M2MFrom', on_delete=models.CASCADE)
-    m2m_to = models.ForeignKey('M2MTo', on_delete=models.CASCADE)
+    m2m_from = models.ForeignKey("M2MFrom", on_delete=models.CASCADE)
+    m2m_to = models.ForeignKey("M2MTo", on_delete=models.CASCADE)
 
 
 class M2MTo(BaseTestModel):
-    m2m_from = models.ManyToManyField('M2MFrom', through=PermanentM2MThrough)
+    m2m_from = models.ManyToManyField("M2MFrom", through=PermanentM2MThrough)
 
 
 class MyPermanentQuerySet(PermanentQuerySet):
