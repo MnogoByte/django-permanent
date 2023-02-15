@@ -26,9 +26,6 @@ class PermanentModel(models.Model):
     objects: ClassVar[BasePermanentManager["Self"]] = NonDeletedManager()
     all_objects: ClassVar[BasePermanentManager["Self"]] = AllObjectsManager()
     deleted_objects: ClassVar[BasePermanentManager["Self"]] = DeletedObjectsManager()
-    # objects = NonDeletedQuerySet.as_manager()
-    # all_objects = PermanentQuerySet.as_manager()
-    # deleted_objects = DeletedQuerySet.as_manager()
 
     class Meta:
         abstract = True

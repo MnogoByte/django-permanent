@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, cast
 from django.db import models
 from django.db.models import Model
 
-from django_permanent.managers import merge_manager_queryset
+from django_permanent.managers import MakeAllObjects, MakeDeletedManager, MakeObjects
 from django_permanent.models import PermanentModel
 from django_permanent.query import (
     BasePermanentQuerySet,
@@ -50,9 +50,9 @@ QST = CustomQuerySet.as_manager()
 
 
 class PassthroughModel(PermanentModel):
-    a_objects = merge_manager_queryset(CustomQuerySet.as_manager(), PermanentQuerySet)
-    b_objects = merge_manager_queryset(CustomQuerySet.as_manager(), DeletedQuerySet)
-    c_objects = merge_manager_queryset(CustomQuerySet.as_manager(), NonDeletedQuerySet)
+    a_objects = MakeObjects(CustomQuerySet.as_manager())
+    b_objects = MakeDeletedManager(CustomManager())
+    c_objects = MakeAllObjects(models.Manager.from_queryset(CustomQuerySet)())
 
 
 PassthroughModel.a_objects.all().get_restore_or_create

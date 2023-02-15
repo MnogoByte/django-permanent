@@ -1,6 +1,6 @@
 import copy
 from functools import partial
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from django.db.models import Manager, Model
 from django.db.models.deletion import Collector
@@ -11,7 +11,9 @@ from django.db.models.sql.where import WhereNode
 from . import settings
 from .signals import post_restore, pre_restore
 
-T = TypeVar("T", bound=Model)
+if TYPE_CHECKING:
+    from .models import PermanentModel
+T = TypeVar("T", bound="PermanentModel")
 
 
 class BasePermanentQuerySet(QuerySet[T]):
