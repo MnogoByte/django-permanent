@@ -1,8 +1,8 @@
 import copy
 from functools import partial
-from typing import TypeVar
+from typing import Any, TypeVar
 
-from django.db.models import Model
+from django.db.models import Manager, Model
 from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q

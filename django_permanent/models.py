@@ -12,14 +12,23 @@ from .managers import (
     DeletedObjectsManager,
     NonDeletedManager,
 )
+from .query import DeletedQuerySet, NonDeletedQuerySet, PermanentQuerySet
 from .related import *  # NOQA
 from .signals import post_restore, pre_restore
+
+
+class Contributer:
+    def contribute_to_class(self, cls, name):
+        breakpoint()
 
 
 class PermanentModel(models.Model):
     objects: ClassVar[BasePermanentManager["Self"]] = NonDeletedManager()
     all_objects: ClassVar[BasePermanentManager["Self"]] = AllObjectsManager()
     deleted_objects: ClassVar[BasePermanentManager["Self"]] = DeletedObjectsManager()
+    # objects = NonDeletedQuerySet.as_manager()
+    # all_objects = PermanentQuerySet.as_manager()
+    # deleted_objects = DeletedQuerySet.as_manager()
 
     class Meta:
         abstract = True
