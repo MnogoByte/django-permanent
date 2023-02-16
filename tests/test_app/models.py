@@ -77,13 +77,22 @@ class MyPermanentQuerySet(models.QuerySet):
     def test(self) -> int:
         return 1
 
+    def custom_queryset_method(self) -> int:
+        return 1
+
+
+class MyPermanentManager(models.Manager):
+    def custom_manager_method(self) -> int:
+        return 1
+
+
+MyManager = MyPermanentManager.from_queryset(MyPermanentQuerySet)()
+
 
 class MyPermanentModelWithManager(PermanentModel, BaseTestModel):
     name = models.CharField(max_length=255, blank=True, null=True)
 
-    objects, all_objects, deleted_objects = MakePermanentManagers(
-        MyPermanentQuerySet.as_manager()
-    )
+    objects, all_objects, deleted_objects = MakePermanentManagers(MyManager)
 
 
 class TestQS:

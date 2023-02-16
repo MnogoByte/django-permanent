@@ -300,6 +300,8 @@ class TestCustomManager(TestCase):
 
     def test_custom_method(self):
         MyPermanentModelWithManager.objects.test()
+        MyPermanentModelWithManager.objects.custom_queryset_method()
+        MyPermanentModelWithManager.objects.custom_manager_method()
 
     def test_non_removed(self):
         self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
