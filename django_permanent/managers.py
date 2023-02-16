@@ -39,15 +39,35 @@ def MultiPassThroughManager(
     return result
 
 
-def merge_queryset(manager: CLS, base_cls: type[BasePermanentQuerySet]) -> CLS:
-    """Given a Manager, modifies the queryset of the manager with a dynamically created queryset.
+def clone_manager_with_merged_queryset(
+    manager: CLS, permanent_queryset_cls: type[BasePermanentQuerySet]
+) -> CLS:
+    """Creates a clone of the Manager from the subclass of querysets
 
-    Merges the underlying classes of the original queryset with the base class
+    Merges the underlying manager's queryset with the input permanent queryset cls.
     """
-    cls = manager._queryset_class
-    name = "".join([cls.__name__, base_cls.__name__])
-    result_class = type(name, (base_cls, cls), {})
-    return manager.__class__.from_queryset(result_class)()
+    original_queryset_cls = manager._queryset_class
+    new_queryset_cls_name = "".join(
+        [original_queryset_cls.__name__, permanent_queryset_cls.__name__]
+    )
+
+    # Merge the underlying queryset classes
+    queryset_class = type(
+        new_queryset_cls_name, (permanent_queryset_cls, original_queryset_cls), {}
+    )
+
+    # Create a new manager (but from the merged queryset class)
+    # And give it the same name as before
+    class_name = manager.__class__.__name__
+
+    # It is important to give it the same name as before for MyPy dynamic lookup of type info
+    full_class = manager.__class__.from_queryset(
+        queryset_class,
+        # .... setting the class name to Manager makes the class lookup possible in Mypy.
+        class_name="Manager",
+    )()
+
+    return full_class
 
 
 def MakePermanentManagers(manager: CLS) -> tuple[CLS, CLS, CLS]:
@@ -59,7 +79,7 @@ def MakePermanentManagers(manager: CLS) -> tuple[CLS, CLS, CLS]:
         objects, all_objects, deleted_objects = MakePermanentManagers(QuerySet.as_manager())
     """
     return (
-        merge_queryset(manager, NonDeletedQuerySet),
-        merge_queryset(manager, PermanentQuerySet),
-        merge_queryset(manager, DeletedQuerySet),
+        clone_manager_with_merged_queryset(manager, NonDeletedQuerySet),
+        clone_manager_with_merged_queryset(manager, PermanentQuerySet),
+        clone_manager_with_merged_queryset(manager, DeletedQuerySet),
     )
