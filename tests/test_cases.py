@@ -3,6 +3,7 @@ from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
 
+from django_permanent.models import PermanentModel
 from django_permanent.signals import post_restore, pre_restore
 
 from .test_app.models import (
@@ -159,7 +160,9 @@ class TestIntegration(TestCase):
     def test_related_manager_bug(self):
         permanent = MyPermanentModel.objects.create()
         PermanentDepended.objects.create(dependence=permanent)
-        PermanentDepended.objects.create(dependence=permanent, removed=now())
+        d = PermanentDepended.objects.create(dependence=permanent)
+        d.delete()
+
         self.assertEqual(permanent.permanentdepended_set.count(), 1)
         self.assertEqual(PermanentDepended.objects.count(), 1)
 
@@ -302,10 +305,14 @@ class TestCustomManager(TestCase):
         self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
 
     def test_removed(self):
-        self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
+        self.assertEqual(MyPermanentModelWithManager.deleted_objects.count(), 1)
 
     def test_all(self):
-        self.assertEqual(MyPermanentModelWithManager.any_objects.count(), 2)
+        self.assertEqual(MyPermanentModelWithManager.all_objects.count(), 2)
+
+    def test_custom_function_is_copied_to_manager_and_submanagers(self):
+        self.assertEqual(MyPermanentModelWithManager.all_objects.test(), 1)
+        self.assertEqual(MyPermanentModelWithManager.all_objects.all().test(), 1)
 
 
 class RetoreOnCreateTestCase(TestCase):

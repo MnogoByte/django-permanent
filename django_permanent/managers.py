@@ -26,27 +26,6 @@ class BasePermanentManager(models.Manager[T]):
         return self.get_queryset().restore(*args, **kwargs)
 
 
-class NonDeletedManager_(BasePermanentManager[T]):
-    qs_class = NonDeletedQuerySet
-
-
-NonDeletedManager = NonDeletedManager_.from_queryset(NonDeletedQuerySet)
-
-
-class AllObjectsManager_(BasePermanentManager[T]):
-    qs_class = PermanentQuerySet
-
-
-AllObjectsManager = AllObjectsManager_.from_queryset(PermanentQuerySet)
-
-
-class DeletedObjectsManager_(BasePermanentManager[T]):
-    qs_class = DeletedQuerySet
-
-
-DeletedObjectsManager = DeletedObjectsManager_.from_queryset(DeletedQuerySet)
-
-
 def MultiPassThroughManager(
     cls: type,
     base_cls: type[BasePermanentQuerySet],
@@ -63,43 +42,24 @@ def MultiPassThroughManager(
 def merge_queryset(manager: CLS, base_cls: type[BasePermanentQuerySet]) -> CLS:
     """Given a Manager, modifies the queryset of the manager with a dynamically created queryset.
 
-    Merges the underlying classes of the original queryset with the base class.
+    Merges the underlying classes of the original queryset with the base class
     """
     cls = manager._queryset_class
     name = "".join([cls.__name__, base_cls.__name__])
     result_class = type(name, (base_cls, cls), {})
-    manager._queryset_class = result_class
-    return manager
+    return manager.__class__.from_queryset(result_class)()
 
 
-def MakeDeletedObjects(manager: CLS) -> CLS:
-    """Given a Manager, modifies the queryset to return only deleted objects.
-
-    Usage:
-
-    class BaseModel(PermanentModel):
-        deleted_objects = MakeDeletedObjects(CustomQueryset.as_manager())
-    """
-    return merge_queryset(manager, DeletedQuerySet)
-
-
-def MakeObjects(manager: CLS) -> CLS:
-    """Given a Manager, modifies the queryset of the manager to return only non deleted objects.
+def MakePermanentManagers(manager: CLS) -> tuple[CLS, CLS, CLS]:
+    """Given a Manager Instance, returns `objects`, `all_objects` and `deleted_objects` managers.
 
     Usage:
 
     class BaseModel(PermanentModel):
-        objects = MakeObjects(CustomQueryset.as_manager())
+        objects, all_objects, deleted_objects = MakePermanentManagers(QuerySet.as_manager())
     """
-    return merge_queryset(manager, NonDeletedQuerySet)
-
-
-def MakeAllObjects(manager: CLS) -> CLS:
-    """Given a Manager, modify the queryset to return all objects
-
-    Usage:
-
-    class BaseModel(PermanentModel):
-        all_objects = MakeAllObjects(QuerySet.as_manager())
-    """
-    return merge_queryset(manager, PermanentQuerySet)
+    return (
+        merge_queryset(manager, NonDeletedQuerySet),
+        merge_queryset(manager, PermanentQuerySet),
+        merge_queryset(manager, DeletedQuerySet),
+    )

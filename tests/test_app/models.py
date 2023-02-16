@@ -1,13 +1,9 @@
 from django.db import models
 from django.db.models import Model
 
-from django_permanent.managers import MultiPassThroughManager
+from django_permanent.managers import MakePermanentManagers, MultiPassThroughManager
 from django_permanent.models import PermanentModel
-from django_permanent.query import (
-    DeletedQuerySet,
-    NonDeletedQuerySet,
-    PermanentQuerySet,
-)
+from django_permanent.query import DeletedQuerySet
 
 
 class BaseTestModel(Model):
@@ -52,8 +48,16 @@ class RemovableNullableDepended(PermanentModel, BaseTestModel):
     )
 
 
+class CustomQuerySet2(models.QuerySet):
+    pass
+
+
 class PermanentDepended(PermanentModel, BaseTestModel):
     dependence = models.ForeignKey(MyPermanentModel, on_delete=models.CASCADE)
+
+    objects, all_objects, deleted_objects = MakePermanentManagers(
+        CustomQuerySet2.as_manager()
+    )
 
 
 class M2MFrom(BaseTestModel):
@@ -69,17 +73,17 @@ class M2MTo(BaseTestModel):
     m2m_from = models.ManyToManyField("M2MFrom", through=PermanentM2MThrough)
 
 
-class MyPermanentQuerySet(PermanentQuerySet):
-    def test(self):
-        pass
+class MyPermanentQuerySet(models.QuerySet):
+    def test(self) -> int:
+        return 1
 
 
 class MyPermanentModelWithManager(PermanentModel, BaseTestModel):
     name = models.CharField(max_length=255, blank=True, null=True)
 
-    objects = MultiPassThroughManager(MyPermanentQuerySet, NonDeletedQuerySet)
-    deleted_objects = MultiPassThroughManager(MyPermanentQuerySet, DeletedQuerySet)
-    any_objects = MultiPassThroughManager(MyPermanentQuerySet, PermanentQuerySet)
+    objects, all_objects, deleted_objects = MakePermanentManagers(
+        MyPermanentQuerySet.as_manager()
+    )
 
 
 class TestQS:

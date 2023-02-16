@@ -6,26 +6,13 @@ from django.utils.module_loading import import_string
 
 from . import settings
 from .deletion import *  # NOQA
-from .managers import (
-    AllObjectsManager,
-    BasePermanentManager,
-    DeletedObjectsManager,
-    NonDeletedManager,
-)
-from .query import DeletedQuerySet, NonDeletedQuerySet, PermanentQuerySet
+from .managers import MakePermanentManagers
 from .related import *  # NOQA
 from .signals import post_restore, pre_restore
 
 
-class Contributer:
-    def contribute_to_class(self, cls, name):
-        breakpoint()
-
-
 class PermanentModel(models.Model):
-    objects: ClassVar[BasePermanentManager["Self"]] = NonDeletedManager()
-    all_objects: ClassVar[BasePermanentManager["Self"]] = AllObjectsManager()
-    deleted_objects: ClassVar[BasePermanentManager["Self"]] = DeletedObjectsManager()
+    objects, all_objects, deleted_objects = MakePermanentManagers(models.Manager())
 
     class Meta:
         abstract = True
