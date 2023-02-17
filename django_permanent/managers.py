@@ -66,7 +66,7 @@ def clone_manager_with_merged_queryset(
         # .... setting the class name to Manager makes the class lookup possible in Mypy.
         class_name=class_name,
     )
-    full_class.is_permanent_django_patched = True
+    full_class.is_django_permanent_patched = True
 
     instance = full_class()
     return instance
