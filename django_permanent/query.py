@@ -1,11 +1,12 @@
 import copy
 from functools import partial
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, Any, MutableMapping, Self, TypeVar
 
 from django.db.models import Manager, Model
 from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
 from django.db.models.query_utils import Q
+from django.db.models.sql.query import Query, RawQuery
 from django.db.models.sql.where import WhereNode
 
 from . import settings
@@ -26,12 +27,18 @@ class BasePermanentQuerySet(QuerySet[T]):
                 obj.__dict__[k] = copy.deepcopy(v, memo)
         return obj
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(
+        self,
+        model: type[Model] | None = None,
+        query: Query | None = None,
+        using: str | None = None,
+        hints: dict[str, Model] | None = None,
+    ) -> None:
+        super().__init__(model=model, query=query, using=using, hints=hints)
 
         self._unpatched = False
 
-    def create(self, **kwargs):
+    def create(self, **kwargs: Any) -> T:
         if not self._unpatched:
             if self.model.Permanent.restore_on_create and not kwargs.get(
                 settings.FIELD
@@ -40,7 +47,9 @@ class BasePermanentQuerySet(QuerySet[T]):
                 return qs.get_restore_or_create(**kwargs)
         return super().create(**kwargs)
 
-    def get_restore_or_create(self, **kwargs):
+    def get_restore_or_create(
+        self, defaults: MutableMapping[str, Any] | None = None, **kwargs: Any
+    ) -> tuple[T, bool]:
         qs = self.get_unpatched()
         obj, created = qs.get_or_create(**kwargs)
         if isinstance(obj, dict):
@@ -58,7 +67,7 @@ class BasePermanentQuerySet(QuerySet[T]):
 
         return obj
 
-    def delete(self, force=False):
+    def delete(self, force: bool = False) -> tuple[int, dict[str, int]]:
         """
         Deletes the records in the current QuerySet.
         """
@@ -87,14 +96,8 @@ class BasePermanentQuerySet(QuerySet[T]):
 
     delete.alters_data = True
 
-    def restore(self):
+    def restore(self) -> int:
         return self.get_unpatched().update(**{settings.FIELD: settings.FIELD_DEFAULT})
-
-    def values(self, *fields):
-        return super().values(*fields)
-
-    def values_list(self, *fields, **kwargs):
-        return super().values_list(*fields, **kwargs)
 
     def _update(self, values):
         # Modifying trigger field have to effect all objects
@@ -104,12 +107,12 @@ class BasePermanentQuerySet(QuerySet[T]):
             return self.get_unpatched()._update(values)
         return super()._update(values)
 
-    def get_unpatched(self):
+    def get_unpatched(self) -> "Self":
         qs = self._clone()
         qs._unpatch()
         return qs
 
-    def _clone(self, *args, **kwargs):
+    def _clone(self, *args, **kwargs) -> "Self":
         c = super()._clone(*args, **kwargs)
         # We need clones stay unpatched
         if getattr(self, "_unpatched", False):
@@ -117,10 +120,10 @@ class BasePermanentQuerySet(QuerySet[T]):
             c._unpatch()
         return c
 
-    def _patch(self, q_object):
+    def _patch(self, q_object: T) -> None:
         self.query.add_q(q_object)
 
-    def _unpatch(self):
+    def _unpatch(self) -> None:
         self._unpatched = True
         if not self.query.where.children:
             return

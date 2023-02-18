@@ -43,7 +43,7 @@ class PermanentModel(models.Model):
 
     delete.alters_data = True  # type: ignore
 
-    def restore(self):
+    def restore(self) -> None:
         pre_restore.send(sender=self.__class__, instance=self)
         setattr(self, settings.FIELD, settings.FIELD_DEFAULT)
         self.save(update_fields=[settings.FIELD])
