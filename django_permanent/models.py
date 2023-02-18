@@ -7,12 +7,18 @@ from django.utils.module_loading import import_string
 from . import settings
 from .deletion import *  # NOQA
 from .managers import MakePermanentManagers
+from .query import DeletedQuerySet, NonDeletedQuerySet, PermanentQuerySet
 from .related import *  # NOQA
 from .signals import post_restore, pre_restore
 
+Manager = models.Manager().from_queryset(PermanentQuerySet)
+
 
 class PermanentModel(models.Model):
-    objects, all_objects, deleted_objects = MakePermanentManagers(models.Manager())
+    # objects, all_objects, deleted_objects = MakePermanentManagers(models.Manager())
+    objects = NonDeletedQuerySet.as_manager()
+    all_objects = PermanentQuerySet.as_manager()
+    deleted_objects = DeletedQuerySet.as_manager()
 
     class Meta:
         abstract = True

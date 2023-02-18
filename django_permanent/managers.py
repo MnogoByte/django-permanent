@@ -47,28 +47,27 @@ def clone_manager_with_merged_queryset(
     Merges the underlying manager's queryset with the input permanent queryset cls.
     """
     original_queryset_cls = manager._queryset_class
-    new_queryset_cls_name = "".join(
+    new_queryset_class_name = "".join(
         [original_queryset_cls.__name__, permanent_queryset_cls.__name__]
     )
 
     # Merge the underlying queryset classes
-    queryset_class = type(
-        new_queryset_cls_name, (permanent_queryset_cls, original_queryset_cls), {}
+    new_queryset_class = type(
+        new_queryset_class_name, (permanent_queryset_cls, original_queryset_cls), {}
     )
 
     # Create a new manager (but from the merged queryset class)
     # And give it the same name as before
-    class_name = f"{manager.__class__.__name__}"
+    new_manager_class_name = f"{manager.__class__.__name__}"
 
     # It is important to give it the same name as before for MyPy dynamic lookup of type info
-    full_class = manager.__class__.from_queryset(
-        queryset_class,
+    new_manager_class = manager.__class__.from_queryset(
+        new_queryset_class,
         # .... setting the class name to Manager makes the class lookup possible in Mypy.
-        class_name=class_name,
+        class_name=new_manager_class_name,
     )
-    full_class.is_django_permanent_patched = True
 
-    instance = full_class()
+    instance = new_manager_class()
     return instance
 
 
