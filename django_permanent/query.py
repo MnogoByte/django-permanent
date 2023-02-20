@@ -2,6 +2,7 @@ import copy
 from functools import partial
 from typing import TYPE_CHECKING, Any, MutableMapping, Self, TypeVar
 
+from django import VERSION as DJANGO_VERSION
 from django.db.models import Manager, Model
 from django.db.models.deletion import Collector
 from django.db.models.query import QuerySet
@@ -83,7 +84,11 @@ class BasePermanentQuerySet(QuerySet[T]):
         # Disable non-supported fields.
         del_query.query.select_for_update = False
         del_query.query.select_related = False
-        del_query.query.clear_ordering(force_empty=True)
+
+        if DJANGO_VERSION < (4, 0, 0):
+            del_query.query.clear_ordering(force_empty=True)
+        else:
+            del_query.query.clear_ordering(force=True, clear_default=True)
 
         collector = Collector(using=del_query.db)
         collector.collect(del_query)
