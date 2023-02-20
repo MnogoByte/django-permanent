@@ -153,4 +153,5 @@ class DeletedQuerySet(BasePermanentQuerySet[T]):
 
 
 class PermanentQuerySet(BasePermanentQuerySet[T]):
-    ...
+    def init_modify_query_hook(self) -> None:
+        return

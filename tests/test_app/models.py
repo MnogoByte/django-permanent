@@ -3,7 +3,11 @@ from django.db.models import Model
 
 from django_permanent.managers import MakePermanentManagers, MultiPassThroughManager
 from django_permanent.models import PermanentModel
-from django_permanent.query import DeletedQuerySet
+from django_permanent.query import (
+    DeletedQuerySet,
+    NonDeletedQuerySet,
+    PermanentQuerySet,
+)
 
 
 class BaseTestModel(Model):
@@ -109,3 +113,13 @@ class RestoreOnCreateModel(PermanentModel, BaseTestModel):
 
     class Permanent:
         restore_on_create = True
+
+
+class AllObjectsSubClassedNonDeletedQuerySet(PermanentQuerySet, NonDeletedQuerySet):
+    pass
+
+
+class AllObjectsSubClassedNonDeletedModel(PermanentModel, BaseTestModel):
+    name = models.CharField(max_length=255, blank=True, null=True)
+
+    all_objects = AllObjectsSubClassedNonDeletedQuerySet.as_manager()

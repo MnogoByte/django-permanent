@@ -7,6 +7,7 @@ from django_permanent.models import PermanentModel
 from django_permanent.signals import post_restore, pre_restore
 
 from .test_app.models import (
+    AllObjectsSubClassedNonDeletedModel,
     CustomQsPermanent,
     M2MFrom,
     M2MTo,
@@ -330,3 +331,15 @@ class RetoreOnCreateTestCase(TestCase):
         new_obj = RestoreOnCreateModel.objects.create(name="obj1")
 
         self.assertEqual(new_obj.pk, self.obj.pk)
+
+
+class SubclassingQuerySetTests(TestCase):
+    def test_subclassing_non_deleted_query_set_with_permanent_query_set(self):
+        obj = AllObjectsSubClassedNonDeletedModel.objects.create(name="hi")
+
+        self.assertEqual(AllObjectsSubClassedNonDeletedModel.all_objects.count(), 1)
+
+        obj.delete()
+
+        self.assertEqual(AllObjectsSubClassedNonDeletedModel.objects.count(), 0)
+        self.assertEqual(AllObjectsSubClassedNonDeletedModel.all_objects.count(), 1)
