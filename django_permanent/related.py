@@ -1,49 +1,8 @@
-from django.db.models.fields.related import ForeignObject
 from django.db.models.fields.related_descriptors import (
     ForwardManyToOneDescriptor as Descriptor,
 )
 
 from . import settings
-from .query import AllWhereNode, DeletedWhereNode
-
-
-def get_extra_restriction_patch(func):
-    def wrapper(self, where_class, alias, lhs):
-        cond = func(self, where_class, alias, lhs)
-
-        from .models import PermanentModel
-
-        if not issubclass(self.model, PermanentModel) or issubclass(
-            where_class, AllWhereNode
-        ):
-            return cond
-
-        if issubclass(where_class, DeletedWhereNode):
-            cond = cond or ~where_class()
-        else:
-            cond = cond or where_class()
-
-        field = self.model._meta.get_field(settings.FIELD)
-
-        from django.db.models.expressions import Col
-
-        if settings.FIELD_DEFAULT is None:
-            lookup = field.get_lookup("isnull")(Col(lhs, field, field), True)
-        else:
-            lookup = field.get_lookup("exact")(
-                Col(lhs, field, field), settings.FIELD_DEFAULT
-            )
-
-        cond.add(lookup, "AND")
-
-        return cond
-
-    return wrapper
-
-
-ForeignObject.get_extra_restriction = get_extra_restriction_patch(
-    ForeignObject.get_extra_restriction
-)
 
 
 def get_queryset_patch(func):
