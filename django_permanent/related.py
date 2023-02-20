@@ -8,20 +8,13 @@ from .query import AllWhereNode, DeletedWhereNode
 
 
 def get_extra_restriction_patch(func):
-    def wrapper(self, where_class, alias, lhs):
-        cond = func(self, where_class, alias, lhs)
+    def wrapper(self, alias, lhs):
+        cond = func(self, alias, lhs)
 
         from .models import PermanentModel
 
-        if not issubclass(self.model, PermanentModel) or issubclass(
-            where_class, AllWhereNode
-        ):
+        if not issubclass(self.model, PermanentModel):
             return cond
-
-        if issubclass(where_class, DeletedWhereNode):
-            cond = cond or ~where_class()
-        else:
-            cond = cond or where_class()
 
         field = self.model._meta.get_field(settings.FIELD)
 
