@@ -35,6 +35,7 @@ class BasePermanentQuerySet(QuerySet[T]):
         hints: dict[str, Model] | None = None,
     ) -> None:
         super().__init__(model=model, query=query, using=using, hints=hints)
+        self.apply_permanent_patch()
 
         self._unpatched = False
 
@@ -135,10 +136,13 @@ class BasePermanentQuerySet(QuerySet[T]):
         if is_patched:
             del self.query.where.children[0]
 
+    def apply_permanent_patch(self) -> None:
+        """Child classes override me"""
+        pass
+
 
 class NonDeletedQuerySet(BasePermanentQuerySet[T]):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def apply_permanent_patch(self) -> None:
         if not self.query.where:
             self._patch(Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
 
@@ -148,8 +152,7 @@ class DeletedWhereNode(WhereNode):
 
 
 class DeletedQuerySet(BasePermanentQuerySet[T]):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def apply_permanent_patch(self) -> None:
         if not self.query.where:
             self.query.where_class = DeletedWhereNode
             self._patch(~Q(**{settings.FIELD: settings.FIELD_DEFAULT}))
@@ -160,7 +163,6 @@ class AllWhereNode(WhereNode):
 
 
 class PermanentQuerySet(BasePermanentQuerySet[T]):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def apply_permanent_patch(self) -> None:
         if not self.query.where:
             self.query.where_class = AllWhereNode
