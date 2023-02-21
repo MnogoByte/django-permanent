@@ -15,6 +15,8 @@ Manager = models.Manager().from_queryset(PermanentQuerySet)
 
 
 class PermanentModel(models.Model):
+    # Ideally we would be using MakePermanentManagers here
+    # but we don't as it doesn't play nicely with mypy-django-stubs
     objects = NonDeletedQuerySet.as_manager()
     all_objects = PermanentQuerySet.as_manager()
     deleted_objects = DeletedQuerySet.as_manager()

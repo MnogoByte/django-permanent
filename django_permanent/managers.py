@@ -13,23 +13,11 @@ from .query import (
 CLS = TypeVar("CLS", bound=models.Manager)
 
 
-class BasePermanentManager(models.Manager[T]):
-    qs_class = BasePermanentQuerySet
-
-    def get_queryset(self) -> BasePermanentQuerySet[T]:
-        return self.qs_class(self.model, using=self._db)
-
-    def get_restore_or_create(self, *args, **kwargs):
-        return self.get_queryset().get_restore_or_create(*args, **kwargs)
-
-    def restore(self, *args, **kwargs):
-        return self.get_queryset().restore(*args, **kwargs)
-
-
 def MultiPassThroughManager(
     cls: type,
     base_cls: type[BasePermanentQuerySet],
 ) -> Any:
+    """This manager fcatory is deprecated. Prefer MakePermanentManagers."""
     name = "".join([cls.__name__, base_cls.__name__])
     result_class = type(name, (cls, base_cls), {})
     result = result_class.as_manager()
