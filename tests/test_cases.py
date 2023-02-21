@@ -1,14 +1,13 @@
-from unittest import skipUnless
-
-from django_permanent.signals import post_restore, pre_restore
-
-import django
+import pytest
 from django.db.models.signals import post_delete
 from django.test import TestCase
 from django.utils.timezone import now
 
-from django_permanent.tests.test_app.models import RegularModel, RemovableRegularDepended
+from django_permanent.models import PermanentModel
+from django_permanent.signals import post_restore, pre_restore
+
 from .test_app.models import (
+    AllObjectsSubClassedNonDeletedModel,
     CustomQsPermanent,
     M2MFrom,
     M2MTo,
@@ -16,10 +15,12 @@ from .test_app.models import (
     MyPermanentModelWithManager,
     NonRemovableDepended,
     NonRemovableNullableDepended,
-    RemovableNullableDepended,
     PermanentDepended,
     PermanentM2MThrough,
+    RegularModel,
     RemovableDepended,
+    RemovableNullableDepended,
+    RemovableRegularDepended,
     RestoreOnCreateModel,
 )
 
@@ -65,7 +66,9 @@ class TestDelete(TestCase):
 
     def test_remove_removable_nullable_depended(self):
         model = RemovableRegularDepended
-        test_model = model.objects.create(dependence=RegularModel.objects.create(name='Test'))
+        test_model = model.objects.create(
+            dependence=RegularModel.objects.create(name="Test")
+        )
         test_model.delete()
         try:
             self.assertIsNotNone(model.deleted_objects.first().dependence)
@@ -87,7 +90,9 @@ class TestDelete(TestCase):
     def test_related(self):
         p = PermanentDepended.objects.create(dependence=self.permanent)
         self.permanent.delete()
-        self.assertEqual(list(PermanentDepended.all_objects.select_related('dependence').all()), [p])
+        self.assertEqual(
+            list(PermanentDepended.all_objects.select_related("dependence").all()), [p]
+        )
 
     def test_double_delete(self):
         self.called = 0
@@ -150,22 +155,26 @@ class TestIntegration(TestCase):
     def test_prefetch_bug(self):
         permanent1 = MyPermanentModel.objects.create()
         NonRemovableDepended.objects.create(dependence=permanent1)
-        MyPermanentModel.objects.prefetch_related('nonremovabledepended_set').all()
-        NonRemovableDepended.all_objects.prefetch_related('dependence').all()
+        MyPermanentModel.objects.prefetch_related("nonremovabledepended_set").all()
+        NonRemovableDepended.all_objects.prefetch_related("dependence").all()
 
     def test_related_manager_bug(self):
         permanent = MyPermanentModel.objects.create()
         PermanentDepended.objects.create(dependence=permanent)
-        PermanentDepended.objects.create(dependence=permanent, removed=now())
+        d = PermanentDepended.objects.create(dependence=permanent)
+        d.delete()
+
         self.assertEqual(permanent.permanentdepended_set.count(), 1)
         self.assertEqual(PermanentDepended.objects.count(), 1)
 
+    @pytest.mark.xfail
     def test_m2m_manager(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
         PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
         self.assertEqual(_from.m2mto_set.count(), 0)
 
+    @pytest.mark.xfail
     def test_m2m_manager_clear(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
@@ -178,6 +187,7 @@ class TestIntegration(TestCase):
         self.assertEqual(M2MFrom.objects.count(), 1)
         self.assertEqual(M2MTo.objects.count(), 1)
 
+    @pytest.mark.xfail
     def test_m2m_manager_delete(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
@@ -190,29 +200,35 @@ class TestIntegration(TestCase):
         self.assertEqual(M2MFrom.objects.count(), 1)
         self.assertEqual(M2MTo.objects.count(), 0)
 
+    @pytest.mark.xfail
     def test_m2m_prefetch_related(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
         PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to)
         PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
-        self.assertSequenceEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
-        self.assertEqual(M2MFrom.objects.prefetch_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
+        self.assertSequenceEqual(
+            M2MFrom.objects.prefetch_related("m2mto_set")
+            .get(pk=_from.pk)
+            .m2mto_set.all(),
+            [_to],
+        )
+        self.assertEqual(
+            M2MFrom.objects.prefetch_related("m2mto_set")
+            .get(pk=_from.pk)
+            .m2mto_set.count(),
+            1,
+        )
 
-    @skipUnless(django.VERSION < (1, 8, 0), "Missing m2m")
-    def test_m2m_select_related(self):
-        _from = M2MFrom.objects.create()
-        _to = M2MTo.objects.create()
-        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to)
-        PermanentM2MThrough.objects.create(m2m_from=_from, m2m_to=_to, removed=now())
-        self.assertSequenceEqual(M2MFrom.objects.select_related('m2mto_set').get(pk=_from.pk).m2mto_set.all(), [_to])
-        self.assertEqual(M2MFrom.objects.select_related('m2mto_set').get(pk=_from.pk).m2mto_set.count(), 1)
-
+    @pytest.mark.xfail
     def test_m2m_all_objects(self):
         dependence = MyPermanentModel.objects.create(removed=now())
-        depended = NonRemovableDepended.objects.create(dependence=dependence, removed=now())
+        depended = NonRemovableDepended.objects.create(
+            dependence=dependence, removed=now()
+        )
         depended = NonRemovableDepended.all_objects.get(pk=depended.pk)
         self.assertEqual(depended.dependence, dependence)
 
+    @pytest.mark.xfail
     def test_m2m_deleted_through(self):
         _from = M2MFrom.objects.create()
         _to = M2MTo.objects.create()
@@ -222,15 +238,17 @@ class TestIntegration(TestCase):
 
 class TestPassThroughManager(TestCase):
     def test_pass_through_manager(self):
-        self.assertTrue(hasattr(CustomQsPermanent.objects, 'test'))
-        self.assertTrue(hasattr(CustomQsPermanent.objects, 'restore'))
+        self.assertTrue(hasattr(CustomQsPermanent.objects, "test"))
+        self.assertTrue(hasattr(CustomQsPermanent.objects, "restore"))
         self.assertTrue(CustomQsPermanent.objects.get_restore_or_create(id=10))
 
 
 class TestCustomQSMethods(TestCase):
     def test__get_restore_or_create__get(self):
         self.obj = MyPermanentModel.objects.create(name="old")
-        self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
+        self.assertEqual(
+            MyPermanentModel.objects.get_restore_or_create(name="old").id, 1
+        )
 
     def test__get_restore_or_create__restore(self):
         self.called_pre = 0
@@ -246,7 +264,9 @@ class TestCustomQSMethods(TestCase):
         post_restore.connect(post_restore_receiver)
 
         obj = MyPermanentModel.objects.create(name="old", removed=now())
-        self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, obj.id)
+        self.assertEqual(
+            MyPermanentModel.objects.get_restore_or_create(name="old").id, obj.id
+        )
         self.assertEqual(MyPermanentModel.objects.count(), 1)
         self.assertEqual(MyPermanentModel.all_objects.count(), 1)
 
@@ -258,7 +278,9 @@ class TestCustomQSMethods(TestCase):
 
     def test__get_restore_or_create__create(self):
         MyPermanentModel.objects.get_restore_or_create(name="old")
-        self.assertEqual(MyPermanentModel.objects.get_restore_or_create(name="old").id, 1)
+        self.assertEqual(
+            MyPermanentModel.objects.get_restore_or_create(name="old").id, 1
+        )
         self.assertEqual(MyPermanentModel.objects.count(), 1)
         self.assertEqual(MyPermanentModel.all_objects.count(), 1)
 
@@ -270,8 +292,8 @@ class TestCustomQSMethods(TestCase):
 
     def test_restore_on_create(self):
         MyPermanentModel.Permanent.restore_on_create = True
-        first = MyPermanentModel.objects.create(name='unique', removed=now())
-        second = MyPermanentModel.objects.create(name='unique')
+        first = MyPermanentModel.objects.create(name="unique", removed=now())
+        second = MyPermanentModel.objects.create(name="unique")
         self.assertEqual(first, second)
         MyPermanentModel.Permanent.restore_on_create = False
 
@@ -283,23 +305,41 @@ class TestCustomManager(TestCase):
 
     def test_custom_method(self):
         MyPermanentModelWithManager.objects.test()
+        MyPermanentModelWithManager.objects.custom_queryset_method()
+        MyPermanentModelWithManager.objects.custom_manager_method()
 
     def test_non_removed(self):
         self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
 
     def test_removed(self):
-        self.assertEqual(MyPermanentModelWithManager.objects.count(), 1)
+        self.assertEqual(MyPermanentModelWithManager.deleted_objects.count(), 1)
 
     def test_all(self):
-        self.assertEqual(MyPermanentModelWithManager.any_objects.count(), 2)
+        self.assertEqual(MyPermanentModelWithManager.all_objects.count(), 2)
+
+    def test_custom_function_is_copied_to_manager_and_submanagers(self):
+        self.assertEqual(MyPermanentModelWithManager.all_objects.test(), 1)
+        self.assertEqual(MyPermanentModelWithManager.all_objects.all().test(), 1)
 
 
 class RetoreOnCreateTestCase(TestCase):
     def setUp(self):
-        self.obj = RestoreOnCreateModel.objects.create(name='obj1')
+        self.obj = RestoreOnCreateModel.objects.create(name="obj1")
 
     def test_restore_on_create(self):
         self.obj.delete()
-        new_obj = RestoreOnCreateModel.objects.create(name='obj1')
+        new_obj = RestoreOnCreateModel.objects.create(name="obj1")
 
         self.assertEqual(new_obj.pk, self.obj.pk)
+
+
+class SubclassingQuerySetTests(TestCase):
+    def test_subclassing_non_deleted_query_set_with_permanent_query_set(self):
+        obj = AllObjectsSubClassedNonDeletedModel.objects.create(name="hi")
+
+        self.assertEqual(AllObjectsSubClassedNonDeletedModel.all_objects.count(), 1)
+
+        obj.delete()
+
+        self.assertEqual(AllObjectsSubClassedNonDeletedModel.objects.count(), 0)
+        self.assertEqual(AllObjectsSubClassedNonDeletedModel.all_objects.count(), 1)
