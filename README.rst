@@ -102,9 +102,7 @@ Using custom querysets
    .. code-block:: python
 
         class MyModel(PermanentModel)
-            objects = MultiPassThroughManager(ServerFileQuerySet, NonDeletedQuerySet)
-            deleted_objects = MultiPassThroughManager(ServerFileQuerySet, DeletedQuerySet)
-            all_objects = MultiPassThroughManager(ServerFileQuerySet, PermanentQuerySet)
+            objects, all_objects, deleted_objects = MakePermanentManagers(ServerFileQuerySet)
 
 Method ``get_restore_or_create``
 ================================
@@ -125,5 +123,5 @@ The default field named is 'removed', but you can override it with the PERMANENT
 Requirements
 ============
 
-- Django 1.7+
-- Python 3.4+
+- Django 3.2+
+- Python 3.10+

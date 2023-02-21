@@ -74,6 +74,10 @@ def clone_manager_with_merged_queryset(
 def MakePermanentManagers(manager: CLS) -> tuple[CLS, CLS, CLS]:
     """Given a Manager Instance, returns `objects`, `all_objects` and `deleted_objects` managers.
 
+    NOTE: This is the preferred approach however; this isn't mypy-django-stubs compatible.
+    mypy-django-stubs requires manager classes to be directly addressable / referenceable.
+    As such, the run time created manager classes do not work.
+
     Usage:
 
     class BaseModel(PermanentModel):

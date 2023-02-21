@@ -15,7 +15,6 @@ Manager = models.Manager().from_queryset(PermanentQuerySet)
 
 
 class PermanentModel(models.Model):
-    # objects, all_objects, deleted_objects = MakePermanentManagers(models.Manager())
     objects = NonDeletedQuerySet.as_manager()
     all_objects = PermanentQuerySet.as_manager()
     deleted_objects = DeletedQuerySet.as_manager()
